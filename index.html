@@ -305,7 +305,7 @@
   .menu-item {
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
+    align-items: flex-start;
     padding: 0.9rem 0;
     border-bottom: 0.5px solid rgba(245,240,232,0.08);
   }
@@ -704,6 +704,83 @@
     .vini-grid { grid-template-columns: 1fr; }
   }
 
+
+  /* ACCORDION SOTTOCATEGORIE */
+  .menu-subcat {
+    border-bottom: 0.5px solid rgba(245,240,232,0.08);
+  }
+  .menu-subcat:last-child { border-bottom: none; }
+
+  .menu-subcat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.3s;
+  }
+  .menu-subcat-header:hover .menu-subcat-title { color: var(--gold); }
+
+  .menu-subcat-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--white-muted);
+    transition: color 0.3s;
+  }
+  .menu-subcat-header.open .menu-subcat-title { color: var(--gold); }
+
+  .menu-subcat-arrow {
+    width: 16px;
+    height: 16px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .menu-subcat-arrow::before,
+  .menu-subcat-arrow::after {
+    content: '';
+    position: absolute;
+    background: var(--gold-dark);
+    border-radius: 1px;
+    transition: transform 0.3s, background 0.3s;
+  }
+  .menu-subcat-arrow::before {
+    width: 10px; height: 1px;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+  .menu-subcat-arrow::after {
+    width: 10px; height: 1px;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) rotate(-45deg);
+  }
+  .menu-subcat-header.open .menu-subcat-arrow::before {
+    transform: translate(-50%, -50%) rotate(135deg);
+    background: var(--gold);
+  }
+  .menu-subcat-header.open .menu-subcat-arrow::after {
+    transform: translate(-50%, -50%) rotate(45deg);
+    background: var(--gold);
+  }
+
+  .menu-subcat-count {
+    font-size: 0.6rem;
+    color: var(--gold-dark);
+    letter-spacing: 0.1em;
+    margin-left: 0.8rem;
+  }
+
+  .menu-subcat-body {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.4s ease;
+  }
+  .menu-subcat-body.open {
+    max-height: 2000px;
+  }
+
   /* ANIMATIONS */
   @keyframes fadeInDown {
     from { opacity: 0; transform: translateY(-20px); }
@@ -1017,11 +1094,12 @@ function parseCSV(text) {
   const rows = text.trim().split('\n').map(r => r.split(',').map(c => c.replace(/^"|"$/g,'').trim()));
   const [header, ...data] = rows;
   return data.map(row => ({
-    categoria:   row[0] || '',
-    nome:        row[1] || '',
-    descrizione: row[2] || '',
-    allergeni:   row[3] || '',
-    prezzo:      row[4] || ''
+    categoria:      row[0] || '',
+    sottocategoria: row[1] || '',
+    nome:           row[2] || '',
+    descrizione:    row[3] || '',
+    allergeni:      row[4] || '',
+    prezzo:         row[5] || ''
   })).filter(r => r.nome);
 }
 
@@ -1034,9 +1112,8 @@ function groupByCategory(items) {
   return groups;
 }
 
-function renderMenuCard(cat, items) {
-  const cfg = CAT_CONFIG[cat] || { icon: '✦', label: '', order: 99 };
-  const itemsHTML = items.map(item => `
+function renderMenuItems(items) {
+  return items.map(item => `
     <li class="menu-item">
       <div>
         <div class="menu-item-name">${item.nome}</div>
@@ -1045,13 +1122,53 @@ function renderMenuCard(cat, items) {
       </div>
       <span class="menu-item-price">${item.prezzo}</span>
     </li>`).join('');
+}
+
+function groupBySubcat(items) {
+  const groups = {};
+  const order = [];
+  items.forEach(item => {
+    const sub = item.sottocategoria || 'Altro';
+    if (!groups[sub]) { groups[sub] = []; order.push(sub); }
+    groups[sub].push(item);
+  });
+  return { groups, order };
+}
+
+function renderMenuCard(cat, items) {
+  const cfg = CAT_CONFIG[cat] || { icon: '✦', label: '', order: 99 };
+  const hasSubs = items.some(i => i.sottocategoria);
+
+  let bodyHTML;
+  if (hasSubs) {
+    const { groups, order } = groupBySubcat(items);
+    bodyHTML = order.map((sub, idx) => `
+      <div class="menu-subcat">
+        <div class="menu-subcat-header${idx === 0 ? ' open' : ''}" onclick="toggleSubcat(this)">
+          <span class="menu-subcat-title">${sub}<span class="menu-subcat-count">(${groups[sub].length})</span></span>
+          <span class="menu-subcat-arrow"></span>
+        </div>
+        <div class="menu-subcat-body${idx === 0 ? ' open' : ''}">
+          <ul class="menu-items">${renderMenuItems(groups[sub])}</ul>
+        </div>
+      </div>`).join('');
+  } else {
+    bodyHTML = `<ul class="menu-items">${renderMenuItems(items)}</ul>`;
+  }
 
   return `
     <div class="menu-category reveal visible">
       <p class="menu-cat-label">${cfg.icon} ${cfg.label}</p>
       <h3 class="menu-cat-title">${cat}</h3>
-      <ul class="menu-items">${itemsHTML}</ul>
+      ${bodyHTML}
     </div>`;
+}
+
+function toggleSubcat(header) {
+  const body = header.nextElementSibling;
+  const isOpen = header.classList.contains('open');
+  header.classList.toggle('open', !isOpen);
+  body.classList.toggle('open', !isOpen);
 }
 
 function renderTabs(categories, active) {
