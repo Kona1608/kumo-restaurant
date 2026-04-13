@@ -1091,16 +1091,31 @@ const WINE_BOTTIGLIA_CATS = ['Bollicine','Bianchi','Rossi','Rosati','Dessert'];
 const ALL_WINE_CATS = [...WINE_CALICE_CATS, ...WINE_BOTTIGLIA_CATS];
 
 function parseCSV(text) {
-  const rows = text.trim().split('\n').map(r => r.split(',').map(c => c.replace(/^"|"$/g,'').trim()));
-  const [header, ...data] = rows;
-  return data.map(row => ({
-    categoria:      row[0] || '',
-    sottocategoria: row[1] || '',
-    nome:           row[2] || '',
-    descrizione:    row[3] || '',
-    allergeni:      row[4] || '',
-    prezzo:         row[5] || ''
-  })).filter(r => r.nome);
+  function parseRow(line) {
+    const cols = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else { cur += ch; }
+    }
+    cols.push(cur.trim());
+    return cols;
+  }
+  const lines = text.trim().split('\n');
+  const data = lines.slice(1);
+  return data.map(line => {
+    const row = parseRow(line);
+    return {
+      categoria:      row[0] || '',
+      sottocategoria: row[1] || '',
+      nome:           row[2] || '',
+      descrizione:    row[3] || '',
+      allergeni:      row[4] || '',
+      prezzo:         row[5] || ''
+    };
+  }).filter(r => r.nome);
 }
 
 function groupByCategory(items) {
@@ -1144,11 +1159,11 @@ function renderMenuCard(cat, items) {
     const { groups, order } = groupBySubcat(items);
     bodyHTML = order.map((sub, idx) => `
       <div class="menu-subcat">
-        <div class="menu-subcat-header${idx === 0 ? ' open' : ''}" onclick="toggleSubcat(this)">
+        <div class="menu-subcat-header" onclick="toggleSubcat(this)">
           <span class="menu-subcat-title">${sub}<span class="menu-subcat-count">(${groups[sub].length})</span></span>
           <span class="menu-subcat-arrow"></span>
         </div>
-        <div class="menu-subcat-body${idx === 0 ? ' open' : ''}">
+        <div class="menu-subcat-body">
           <ul class="menu-items">${renderMenuItems(groups[sub])}</ul>
         </div>
       </div>`).join('');
