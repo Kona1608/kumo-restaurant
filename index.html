@@ -2994,8 +2994,9 @@ Rispondi SOLO con JSON puro, senza backtick:
 {"vino1":{"tier":"Selezione Essenziale","nome":"...","tipo":"...","prezzo":"...","narrativa":"3 frasi poetiche stile sommelier","abbinamento":"1 frase"},"vino2":{"tier":"Selezione Premium","nome":"...","tipo":"...","prezzo":"...","narrativa":"3 frasi poetiche stile sommelier","abbinamento":"1 frase"},"cocktail1":{"tier":"Classico","nome":"...","tipo":"...","prezzo":"...","narrativa":"3 frasi evocative","abbinamento":"1 frase"},"cocktail2":{"tier":"Signature KUMO","nome":"...","tipo":"...","prezzo":"...","narrativa":"3 frasi evocative","abbinamento":"1 frase"},"calice1":{"nome":"...","regione":"...","descrizione":"2 frasi brevi","prezzo":"..."},"calice2":{"nome":"...","regione":"...","descrizione":"2 frasi brevi","prezzo":"..."}}`;
 
   try {
-    const r = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST', headers:{'Content-Type':'application/json'},
+    const r = await fetch('/api/sommelier', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
       body: JSON.stringify({model:'claude-sonnet-4-20250514', max_tokens:1600, messages:[{role:'user',content:prompt}]})
     });
     const data = await r.json();
