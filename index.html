@@ -1660,13 +1660,18 @@
     background: var(--dark2);
     border-left: 0.5px solid rgba(201,165,90,0.2);
     z-index: 160;
-    transform: translateX(100%);
-    transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
-    display: flex;
+    display: none;
     flex-direction: column;
     padding: 5rem 2.5rem 3rem;
   }
-  .mobile-nav-drawer.open { transform: translateX(0); }
+  .mobile-nav-drawer.open {
+    display: flex;
+    animation: drawerSlideIn 0.4s cubic-bezier(0.22,1,0.36,1) forwards;
+  }
+  @keyframes drawerSlideIn {
+    from { transform: translateX(100%); }
+    to   { transform: translateX(0); }
+  }
 
   .mobile-nav-close {
     position: absolute;
