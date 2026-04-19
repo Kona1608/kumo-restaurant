@@ -2961,20 +2961,19 @@ async function somGen() {
     return `- ${t.label}: ${v==='a'?t.a:v==='b'?t.b:t.m}`;
   }).join('\n');
 
-  // Fetch carta reale
+  // Fetch carta reale — usa tutti gli item della carta bevande senza filtrare per categoria
   const menuItems = await somFetchMenu();
-  const wineItems = menuItems.filter(i => ALL_WINE_CATS.includes(i.categoria));
+  const wineItems = menuItems.length > 0 ? menuItems : [];
   
   let menuContext = '';
   if(wineItems.length > 0) {
-    menuContext = '\n\nCARTA VINI DISPONIBILE (scegli SOLO da questi vini, rispettando nome e prezzo esatti):\n';
+    menuContext = '\n\nCARTA BEVANDE DISPONIBILE — usa ESCLUSIVAMENTE questi prodotti per vini e calici, rispettando nome e prezzo esatti. NON inventare o sostituire con altri vini non presenti in lista:\n';
     wineItems.forEach(w => {
       menuContext += `- [${w.categoria}] ${w.nome}`;
       if(w.descrizione) menuContext += ` — ${w.descrizione}`;
-      if(w.prezzo) menuContext += ` | ${w.prezzo}`;
+      if(w.prezzo) menuContext += ` | €${w.prezzo}`;
       menuContext += '\n';
     });
-    menuContext += "\nSe la carta e' troppo limitata per soddisfare i gusti, puoi suggerire anche un cocktail o calice appropriato.";
   }
 
   const prompt = `Sei il sommelier esclusivo di KUMO Restaurant, ristorante di sushi e carne alla griglia, stile elegante nero-oro.
@@ -2986,9 +2985,9 @@ ${tasteDesc}
 ${menuContext}
 
 Consiglia ESATTAMENTE:
-- 2 vini: uno accessibile e uno premium${wineItems.length > 0 ? ' (scegli dalla carta disponibile sopra)' : ' (suggerisci vini reali adatti)'}
+- 2 vini: uno accessibile e uno premium — OBBLIGATORIO scegliere SOLO dalla carta bevande sopra, nome e prezzo devono corrispondere esattamente
 - 2 cocktail: uno classico e uno signature KUMO (puoi inventarli in stile orientale-elegante)
-- 2 calici: vini al calice con breve descrizione diretta${wineItems.length > 0 ? ' (dalla carta se disponibili)' : ''}
+- 2 calici: scegli SOLO dalla carta bevande sopra se disponibili, altrimenti lascia nome "—" e prezzo "—"
 
 Rispondi SOLO con JSON puro, senza backtick:
 {"vino1":{"tier":"Selezione Essenziale","nome":"...","tipo":"...","prezzo":"...","narrativa":"3 frasi poetiche stile sommelier","abbinamento":"1 frase"},"vino2":{"tier":"Selezione Premium","nome":"...","tipo":"...","prezzo":"...","narrativa":"3 frasi poetiche stile sommelier","abbinamento":"1 frase"},"cocktail1":{"tier":"Classico","nome":"...","tipo":"...","prezzo":"...","narrativa":"3 frasi evocative","abbinamento":"1 frase"},"cocktail2":{"tier":"Signature KUMO","nome":"...","tipo":"...","prezzo":"...","narrativa":"3 frasi evocative","abbinamento":"1 frase"},"calice1":{"nome":"...","regione":"...","descrizione":"2 frasi brevi","prezzo":"..."},"calice2":{"nome":"...","regione":"...","descrizione":"2 frasi brevi","prezzo":"..."}}`;
