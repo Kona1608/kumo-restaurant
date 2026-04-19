@@ -40,7 +40,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.2rem 4rem;
+    padding: 1.4rem 4rem;
     background: linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, transparent 100%);
     transition: background 0.4s;
   }
@@ -57,7 +57,7 @@
   }
   .nav-links {
     display: flex;
-    gap: 2.5rem;
+    gap: 2.8rem;
     list-style: none;
   }
   .nav-links a {
@@ -508,6 +508,69 @@
   }
   .footer-links a:hover { color: var(--gold); }
 
+
+  /* MODE SWITCHER */
+  .mode-switcher {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 4rem;
+    position: relative;
+  }
+  .mode-switcher::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0.5px;
+    height: 60%;
+    background: rgba(201,165,90,0.4);
+    pointer-events: none;
+  }
+  .mode-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--white-muted);
+    background: none;
+    border: 0.5px solid rgba(201,165,90,0.2);
+    padding: 1.1rem 3rem;
+    cursor: pointer;
+    transition: all 0.4s;
+    position: relative;
+  }
+  .mode-btn:first-child { border-right: none; }
+  .mode-btn:last-child  { border-left: none; }
+  .mode-btn .mode-icon {
+    display: block;
+    font-size: 1rem;
+    margin-bottom: 0.4rem;
+    opacity: 0.5;
+    transition: opacity 0.4s;
+  }
+  .mode-btn .mode-label { display: block; }
+  .mode-btn.active {
+    color: var(--gold);
+    border-color: rgba(201,165,90,0.5);
+    background: rgba(201,165,90,0.04);
+  }
+  .mode-btn.active .mode-icon { opacity: 1; }
+  .mode-btn:not(.active):hover {
+    color: var(--white);
+    border-color: rgba(201,165,90,0.3);
+  }
+  .mode-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -0.5px;
+    left: 10%;
+    right: 10%;
+    height: 0.5px;
+    background: var(--gold);
+  }
 
   /* MENU TABS */
   .menu-tabs {
@@ -1016,6 +1079,172 @@
     #prenota { padding: 5rem 1.5rem; }
     footer { padding: 2rem 1.5rem; flex-direction: column; text-align: center; }
   }
+
+  /* NAV SOMMELIER BUTTON */
+  .nav-sommelier {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    background: none;
+    border: 0.5px solid rgba(201,165,90,0.4);
+    padding: 0.5rem 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .nav-sommelier:hover { background: rgba(201,165,90,0.08); border-color: var(--gold); }
+
+  /* SOMMELIER CTA IN VINI */
+  .vini-sommelier-cta {
+    max-width: 1100px;
+    margin: 3.5rem auto 0;
+    text-align: center;
+    padding: 2.5rem;
+    border: 0.5px solid rgba(201,165,90,0.18);
+    background: rgba(201,165,90,0.02);
+    position: relative;
+  }
+  .vini-sommelier-cta::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%; transform: translateX(-50%);
+    width: 40px; height: 0.5px;
+    background: var(--gold);
+  }
+  .btn-sommelier {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--gold);
+    background: none;
+    border: 0.5px solid var(--gold);
+    padding: 1rem 2.4rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-bottom: 1.2rem;
+  }
+  .btn-sommelier:hover {
+    background: var(--gold);
+    color: var(--black);
+  }
+  .btn-sommelier-star {
+    font-size: 0.8rem;
+    transition: transform 0.3s;
+  }
+  .btn-sommelier:hover .btn-sommelier-star {
+    transform: rotate(30deg);
+  }
+  .vini-sommelier-desc {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--white-muted);
+    letter-spacing: 0.04em;
+    line-height: 1.8;
+  }
+
+  /* SOMMELIER MODAL */
+  .som-overlay {
+    position: fixed; inset: 0; z-index: 999;
+    background: rgba(0,0,0,0.92);
+    display: none; align-items: center; justify-content: center;
+    overflow-y: auto; padding: 2rem 1rem;
+  }
+  .som-overlay.open { display: flex; animation: somFadeIn 0.3s ease; }
+  @keyframes somFadeIn { from { opacity:0 } to { opacity:1 } }
+  .som-box {
+    width: min(700px, 100%);
+    position: relative;
+    padding: 0 0 3rem;
+  }
+  .som-close {
+    position: fixed; top: 1.5rem; right: 1.5rem;
+    background: none; border: 0.5px solid rgba(201,165,90,0.3);
+    color: var(--white-muted); cursor: pointer;
+    font-size: 0.65rem; letter-spacing: 0.3em; padding: 0.5rem 1rem;
+    font-family: 'Raleway', sans-serif; text-transform: uppercase;
+    transition: all 0.2s; z-index: 1000;
+  }
+  .som-close:hover { color: var(--gold); border-color: var(--gold); }
+  .som-header { text-align: center; margin-bottom: 2.5rem; }
+  .som-label { font-size: 0.6rem; letter-spacing: 0.45em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.8rem; }
+  .som-title { font-family: 'Cinzel', serif; font-size: clamp(1.2rem,4vw,1.8rem); letter-spacing: 0.15em; color: var(--white); margin-bottom: 0.6rem; }
+  .som-sub { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 0.95rem; color: var(--white-muted); line-height: 1.7; }
+  .som-gline { width: 50px; height: 0.5px; background: var(--gold); margin: 1.2rem auto; }
+  .som-pw { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 2.5rem; }
+  .som-pd { width: 32px; height: 2px; background: rgba(201,165,90,0.2); transition: background 0.4s; border-radius: 2px; }
+  .som-pd.act { background: var(--gold); } .som-pd.dn { background: var(--gold-dark); }
+  .som-step { display: none; animation: somUp 0.4s ease forwards; }
+  .som-step.active { display: block; }
+  @keyframes somUp { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
+  @keyframes spin { to { transform:rotate(360deg) } }
+  .som-slabel { font-size: 0.55rem; letter-spacing: 0.4em; text-transform: uppercase; color: var(--gold-dark); margin-bottom: 0.5rem; }
+  .som-stitle { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.2rem,3vw,1.6rem); font-weight: 300; color: var(--white); margin-bottom: 0.3rem; }
+  .som-stitle em { font-style: italic; color: var(--gold-light); }
+  .som-shint { font-size: 0.75rem; color: var(--white-muted); margin-bottom: 1.6rem; line-height: 1.6; }
+  .som-dgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; margin-bottom: 1.8rem; }
+  .som-card { border: 0.5px solid rgba(201,165,90,0.2); background: rgba(201,165,90,0.02); padding: 1.5rem 1rem; cursor: pointer; transition: all 0.22s; text-align: center; position: relative; overflow: hidden; }
+  .som-card::before { content:''; position:absolute; inset:0; background: linear-gradient(135deg,rgba(201,165,90,0.06) 0%,transparent 60%); opacity:0; transition:opacity 0.22s; }
+  .som-card:hover { border-color: rgba(201,165,90,0.5); } .som-card:hover::before { opacity:1; }
+  .som-card.sel { border-color: var(--gold); background: rgba(201,165,90,0.08); } .som-card.sel::before { opacity:1; } .som-card.sel .som-chk { opacity:1; }
+  .som-chk { position:absolute; top:0.5rem; right:0.6rem; font-size:0.5rem; color:var(--gold); opacity:0; transition:opacity 0.2s; }
+  .som-on { font-family:'Cinzel',serif; font-size:0.72rem; letter-spacing:0.18em; color:var(--white); margin-bottom:0.25rem; }
+  .som-od { font-size:0.68rem; color:var(--white-muted); line-height:1.5; }
+  .som-trows { display:flex; flex-direction:column; gap:0.9rem; margin-bottom:1.8rem; }
+  .som-trow { display:flex; align-items:center; gap:0.8rem; }
+  .som-trow-label { font-size:0.5rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--gold-dark); width:72px; flex-shrink:0; line-height:1.4; }
+  .som-tbtns { display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.35rem; flex:1; }
+  .som-tbtn { font-family:'Cinzel',serif; font-size:0.6rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--white-muted); background:none; border:0.5px solid rgba(201,165,90,0.2); padding:0.7rem 0.3rem; cursor:pointer; transition:all 0.22s; text-align:center; }
+  .som-tbtn:hover { border-color:rgba(201,165,90,0.5); color:var(--white); }
+  .som-tbtn.sel { border-color:var(--gold); color:var(--gold); background:rgba(201,165,90,0.07); }
+  .som-navb { display:flex; gap:0.8rem; justify-content:flex-end; margin-top:1.2rem; }
+  .som-bback { font-family:'Raleway',sans-serif; font-size:0.62rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--white-muted); background:none; border:0.5px solid rgba(201,165,90,0.2); padding:0.75rem 1.6rem; cursor:pointer; transition:all 0.22s; }
+  .som-bback:hover { border-color:var(--gold); color:var(--gold); }
+  .som-bnext { font-family:'Cinzel',serif; font-size:0.62rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--black); background:var(--gold); border:none; padding:0.75rem 1.8rem; cursor:pointer; transition:all 0.22s; }
+  .som-bnext:hover { background:var(--gold-light); } .som-bnext:disabled { background:rgba(201,165,90,0.3); color:rgba(0,0,0,0.4); cursor:not-allowed; }
+  .som-result { display:none; }
+  .som-rload { text-align:center; padding:3rem 0; }
+  .som-lring { width:52px; height:52px; border:1px solid rgba(201,165,90,0.15); border-top-color:var(--gold); border-radius:50%; animation:spin 1.2s linear infinite; margin:0 auto 1.2rem; }
+  .som-ltxt { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1rem; color:var(--white-muted); }
+  .som-rsection { font-size:0.52rem; letter-spacing:0.45em; text-transform:uppercase; color:var(--gold); display:flex; align-items:center; gap:0.7rem; margin:1.8rem 0 0.9rem; }
+  .som-rsection::before,.som-rsection::after { content:''; flex:1; height:0.5px; background:rgba(201,165,90,0.2); }
+  .som-rsection:first-child { margin-top:0; }
+  .som-cards2 { display:grid; grid-template-columns:1fr 1fr; gap:0.9rem; }
+  @media(max-width:480px){ .som-cards2{ grid-template-columns:1fr } .som-dgrid{ grid-template-columns:1fr 1fr } }
+  .som-rc { border:0.5px solid rgba(201,165,90,0.3); background:rgba(201,165,90,0.03); padding:1.6rem 1.3rem; position:relative; display:none; }
+  .som-rc.vis { display:block; animation:somUp 0.5s ease forwards; }
+  .som-rc.d1{animation-delay:.04s}.som-rc.d2{animation-delay:.13s}.som-rc.d3{animation-delay:.22s}.som-rc.d4{animation-delay:.31s}
+  .som-rcc { position:absolute; width:13px; height:13px; }
+  .som-tl{top:-1px;left:-1px;border-top:1px solid var(--gold);border-left:1px solid var(--gold)}
+  .som-tr{top:-1px;right:-1px;border-top:1px solid var(--gold);border-right:1px solid var(--gold)}
+  .som-bl{bottom:-1px;left:-1px;border-bottom:1px solid var(--gold);border-left:1px solid var(--gold)}
+  .som-br{bottom:-1px;right:-1px;border-bottom:1px solid var(--gold);border-right:1px solid var(--gold)}
+  .som-rtier { font-size:0.48rem; letter-spacing:0.4em; text-transform:uppercase; color:var(--gold-dark); margin-bottom:0.45rem; }
+  .som-rname { font-family:'Cinzel',serif; font-size:0.88rem; letter-spacing:0.07em; color:var(--white); margin-bottom:0.18rem; line-height:1.3; }
+  .som-rtype { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.82rem; color:var(--gold-dark); margin-bottom:0.8rem; }
+  .som-rdiv { width:100%; height:0.5px; background:rgba(201,165,90,0.15); margin:0.8rem 0; }
+  .som-rnarr { font-family:'Cormorant Garamond',serif; font-size:0.88rem; line-height:1.85; color:var(--white-muted); }
+  .som-rprice { display:inline-block; border:0.5px solid var(--gold); color:var(--gold); font-family:'Cinzel',serif; font-size:0.58rem; letter-spacing:0.2em; padding:0.28rem 0.75rem; margin-top:0.8rem; }
+  .som-rpair { margin-top:0.8rem; padding:0.85rem; background:rgba(201,165,90,0.04); border-left:1px solid rgba(201,165,90,0.35); }
+  .som-plbl { font-size:0.48rem; letter-spacing:0.35em; text-transform:uppercase; color:var(--gold); margin-bottom:0.3rem; }
+  .som-ptxt { font-size:0.74rem; line-height:1.6; color:var(--white-muted); }
+  .som-calice-card { border:0.5px solid rgba(201,165,90,0.18); background:rgba(201,165,90,0.02); padding:1.2rem; position:relative; display:none; }
+  .som-calice-card.vis { display:block; animation:somUp 0.5s ease forwards; }
+  .som-calice-card.d5{animation-delay:.4s}.som-calice-card.d6{animation-delay:.5s}
+  .som-ceyebrow { font-size:0.48rem; letter-spacing:0.4em; text-transform:uppercase; color:var(--gold-dark); margin-bottom:0.4rem; }
+  .som-cname { font-family:'Cinzel',serif; font-size:0.85rem; letter-spacing:0.09em; color:var(--white); margin-bottom:0.18rem; }
+  .som-cregion { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.8rem; color:var(--gold-dark); margin-bottom:0.6rem; }
+  .som-cdesc { font-size:0.76rem; color:var(--white-muted); line-height:1.6; }
+  .som-cprice { display:inline-block; border:0.5px solid rgba(201,165,90,0.4); color:var(--gold); font-family:'Cinzel',serif; font-size:0.57rem; letter-spacing:0.2em; padding:0.25rem 0.7rem; margin-top:0.7rem; }
+  .som-rst { font-family:'Raleway',sans-serif; font-size:0.6rem; letter-spacing:0.28em; text-transform:uppercase; color:var(--white-muted); background:none; border:none; cursor:pointer; display:flex; align-items:center; gap:0.5rem; margin-top:1.8rem; transition:color 0.2s; }
+  .som-rst:hover { color:var(--gold); }
+  .som-rst::before { content:'\2190'; font-size:0.75rem; }
+  .som-fetch-note { font-size:0.68rem; color:var(--white-muted); text-align:center; margin-top:1rem; font-style:italic; font-family:'Cormorant Garamond',serif; }
+
 </style>
 </head>
 <body>
@@ -1087,41 +1316,90 @@
     <div class="section-line"></div>
   </div>
 
-  <!-- Tab filters -->
-  <div class="menu-tabs reveal" id="menuTabs"></div>
+  <!-- Mode Switcher -->
+  <div class="mode-switcher reveal">
+    <button class="mode-btn active" id="btnRestaurant" onclick="switchMode('restaurant')">
+      <span class="mode-icon">&#x2604;</span>
+      <span class="mode-label">Restaurant</span>
+    </button>
+    <button class="mode-btn" id="btnBar" onclick="switchMode('bar')">
+      <span class="mode-icon">&#10040;</span>
+      <span class="mode-label">Bar &amp; Tapas</span>
+    </button>
+  </div>
 
-  <!-- Menu grid (rendered by JS) -->
-  <div class="menu-grid" id="menuGrid">
-    <div class="menu-loading">
-      <div class="loading-dot"></div>
-      <div class="loading-dot"></div>
-      <div class="loading-dot"></div>
+  <!-- RESTAURANT PANEL -->
+  <div id="panelRestaurant">
+    <!-- Tab filters -->
+    <div class="menu-tabs reveal" id="menuTabs"></div>
+    <!-- Menu grid (rendered by JS) -->
+    <div class="menu-grid" id="menuGrid">
+      <div class="menu-loading">
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+      </div>
+    </div>
+    <div class="menu-cta reveal">
+      <a href="#prenota" class="btn-gold">Prenota un Tavolo</a>
+    </div>
+    <div class="menu-legend reveal">
+      <p class="menu-legend-title">Allergeni — Regolamento UE 1169/2011</p>
+      <div class="menu-legend-grid">
+        <div class="menu-legend-item"><span class="menu-legend-num">1</span><span class="menu-legend-name">Glutine</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">2</span><span class="menu-legend-name">Crostacei</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">3</span><span class="menu-legend-name">Uova</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">4</span><span class="menu-legend-name">Pesce</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">5</span><span class="menu-legend-name">Arachidi</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">6</span><span class="menu-legend-name">Soia</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">7</span><span class="menu-legend-name">Latte e latticini</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">8</span><span class="menu-legend-name">Frutta a guscio</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">9</span><span class="menu-legend-name">Sedano</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">10</span><span class="menu-legend-name">Senape</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">11</span><span class="menu-legend-name">Semi di sesamo</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">12</span><span class="menu-legend-name">Anidride solforosa e solfiti</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">13</span><span class="menu-legend-name">Lupini</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">14</span><span class="menu-legend-name">Molluschi</span></div>
+      </div>
     </div>
   </div>
 
-  <div class="menu-cta reveal">
-    <a href="#prenota" class="btn-gold">Prenota un Tavolo</a>
-  </div>
-
-  <div class="menu-legend reveal">
-    <p class="menu-legend-title">Allergeni — Regolamento UE 1169/2011</p>
-    <div class="menu-legend-grid">
-      <div class="menu-legend-item"><span class="menu-legend-num">1</span><span class="menu-legend-name">Glutine</span></div>
-      <div class="menu-legend-item"><span class="menu-legend-num">2</span><span class="menu-legend-name">Crostacei</span></div>
-      <div class="menu-legend-item"><span class="menu-legend-num">3</span><span class="menu-legend-name">Uova</span></div>
-      <div class="menu-legend-item"><span class="menu-legend-num">4</span><span class="menu-legend-name">Pesce</span></div>
-      <div class="menu-legend-item"><span class="menu-legend-num">5</span><span class="menu-legend-name">Arachidi</span></div>
-      <div class="menu-legend-item"><span class="menu-legend-num">6</span><span class="menu-legend-name">Soia</span></div>
-      <div class="menu-legend-item"><span class="menu-legend-num">7</span><span class="menu-legend-name">Latte e latticini</span></div>
-      <div class="menu-legend-item"><span class="menu-legend-num">8</span><span class="menu-legend-name">Frutta a guscio</span></div>
-      <div class="menu-legend-item"><span class="menu-legend-num">9</span><span class="menu-legend-name">Sedano</span></div>
-      <div class="menu-legend-item"><span class="menu-legend-num">10</span><span class="menu-legend-name">Senape</span></div>
-      <div class="menu-legend-item"><span class="menu-legend-num">11</span><span class="menu-legend-name">Semi di sesamo</span></div>
-      <div class="menu-legend-item"><span class="menu-legend-num">12</span><span class="menu-legend-name">Anidride solforosa e solfiti</span></div>
-      <div class="menu-legend-item"><span class="menu-legend-num">13</span><span class="menu-legend-name">Lupini</span></div>
-      <div class="menu-legend-item"><span class="menu-legend-num">14</span><span class="menu-legend-name">Molluschi</span></div>
+  <!-- BAR PANEL -->
+  <div id="panelBar" style="display:none;">
+    <!-- Bar tab filters -->
+    <div class="menu-tabs reveal" id="barTabs"></div>
+    <!-- Bar grid (rendered by JS) -->
+    <div class="menu-grid" id="barGrid">
+      <div class="menu-loading">
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+      </div>
+    </div>
+    <div class="menu-cta reveal">
+      <a href="#prenota" class="btn-gold">Prenota un Tavolo</a>
+    </div>
+    <div class="menu-legend reveal">
+      <p class="menu-legend-title">Allergeni — Regolamento UE 1169/2011</p>
+      <div class="menu-legend-grid">
+        <div class="menu-legend-item"><span class="menu-legend-num">1</span><span class="menu-legend-name">Glutine</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">2</span><span class="menu-legend-name">Crostacei</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">3</span><span class="menu-legend-name">Uova</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">4</span><span class="menu-legend-name">Pesce</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">5</span><span class="menu-legend-name">Arachidi</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">6</span><span class="menu-legend-name">Soia</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">7</span><span class="menu-legend-name">Latte e latticini</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">8</span><span class="menu-legend-name">Frutta a guscio</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">9</span><span class="menu-legend-name">Sedano</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">10</span><span class="menu-legend-name">Senape</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">11</span><span class="menu-legend-name">Semi di sesamo</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">12</span><span class="menu-legend-name">Anidride solforosa e solfiti</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">13</span><span class="menu-legend-name">Lupini</span></div>
+        <div class="menu-legend-item"><span class="menu-legend-num">14</span><span class="menu-legend-name">Molluschi</span></div>
+      </div>
     </div>
   </div>
+
 </section>
 
 <!-- VINI -->
@@ -1137,6 +1415,13 @@
       <div class="loading-dot"></div>
       <div class="loading-dot"></div>
     </div>
+  </div>
+  <div class="vini-sommelier-cta reveal">
+    <button onclick="openSommelier()" class="btn-sommelier">
+      <span class="btn-sommelier-star">&#10022;</span>
+      Il tuo sommelier
+    </button>
+    <p class="vini-sommelier-desc">Lasciati guidare nell&rsquo;abbinamento perfetto tra vino e piatto</p>
   </div>
 </section>
 
@@ -1168,14 +1453,12 @@
 <!-- INFO -->
 <section id="info">
   <div class="section-header reveal">
-    <p class="section-label">Dove siamo</p>
     <h2 class="section-title">Informazioni</h2>
     <div class="section-line"></div>
   </div>
   <div class="info-grid">
     <div class="info-block reveal">
       <p class="info-icon">Orari</p>
-      <h3>Quando Veniamo Aperti</h3>
       <p>
         Lun · Mar · Gio · Ven · Sab<br>
         <strong style="color: var(--white);">18:30 – 22:30</strong><br><br>
@@ -1187,7 +1470,6 @@
     </div>
     <div class="info-block reveal">
       <p class="info-icon">Dove</p>
-      <h3>Come Raggiungerci</h3>
       <p>
         Via Enrico Toti 7<br>
         60044 — Fabriano (AN)<br><br>
@@ -1197,7 +1479,6 @@
     </div>
     <div class="info-block reveal">
       <p class="info-icon">Contatti</p>
-      <h3>Scrivici o Chiamaci</h3>
       <p>
         Tel: <a href="tel:+393331422669">333 142 2669</a><br><br>
         Email: <a href="mailto:info@kumorestaurant.it">info@kumorestaurant.it</a><br><br>
@@ -1270,12 +1551,46 @@
 
 const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQmQqLvzBWI-eP8VEQVG6WFnzVFHl9XnhGbnY-mINmGyA61gbSc4hNGoA5dLxtgo2eQOg_F9YiT936i/pub?gid=1821865298&single=true&output=csv';
 
-// Ordine e icone delle categorie
+// =============================================
+// BAR — Inserisci qui il link CSV del tuo
+// Google Sheet con il menu del Bar/Tapas
+// =============================================
+const SHEET_URL_BAR = 'INCOLLA_QUI_IL_CSV_DEL_BAR';
+
+// Ordine e icone delle categorie RESTAURANT
 const CAT_CONFIG = {
   'Sushi': { icon: '☁', label: 'La Nuvola', order: 1 },
   'Mare':  { icon: '🌊', label: 'Il Mare', order: 2 },
   'Terra': { icon: '🔥', label: 'La Terra', order: 3 },
 };
+
+// Ordine e icone delle categorie BAR / TAPAS
+const CAT_CONFIG_BAR = {
+  'Tapas Fredde':  { icon: '❄', label: 'Fredde', order: 1 },
+  'Tapas Calde':   { icon: '🔥', label: 'Calde', order: 2 },
+  'Taglieri':      { icon: '✦', label: 'Taglieri', order: 3 },
+  'Dolci':         { icon: '☽', label: 'Dolci', order: 4 },
+};
+
+// Stato modalità
+let currentMode = 'restaurant';
+let barLoaded = false;
+let allGroupsBar = {};
+
+function switchMode(mode) {
+  if (mode === currentMode) return;
+  currentMode = mode;
+
+  document.getElementById('btnRestaurant').classList.toggle('active', mode === 'restaurant');
+  document.getElementById('btnBar').classList.toggle('active', mode === 'bar');
+  document.getElementById('panelRestaurant').style.display = mode === 'restaurant' ? '' : 'none';
+  document.getElementById('panelBar').style.display = mode === 'bar' ? '' : 'none';
+
+  if (mode === 'bar' && !barLoaded) {
+    barLoaded = true;
+    loadBarMenu();
+  }
+}
 
 // Categorie vini — calice e bottiglia
 const WINE_CALICE_CATS = ['Bollicine al Calice','Bianchi al Calice','Rossi al Calice','Rosati al Calice'];
@@ -1447,6 +1762,92 @@ async function loadMenu() {
   } catch(e) {
     grid.innerHTML = `<div class="menu-error">Impossibile caricare il menu.<br><a href="#">Riprova</a></div>`;
   }
+}
+
+
+// =============================================
+// BAR — Carica menu tapas
+// =============================================
+async function loadBarMenu() {
+  const grid = document.getElementById('barGrid');
+
+  if (!SHEET_URL_BAR || SHEET_URL_BAR === 'INCOLLA_QUI_IL_CSV_DEL_BAR') {
+    // Dati di esempio Bar finché non è configurato lo Sheet
+    allGroupsBar = {
+      'Tapas Fredde': [
+        { nome: 'Burrata con pomodorini confit', descrizione: 'Olio EVO, basilico fresco', allergeni: '7', prezzo: '€ 10' },
+        { nome: 'Caprese di bufala', descrizione: 'Mozzarella di bufala, pomodoro ramato, basilico', allergeni: '7', prezzo: '€ 10' },
+        { nome: 'Tartare di salmone', descrizione: 'Avocado, citronette allo yuzu', allergeni: '4', prezzo: '€ 13' },
+        { nome: 'Hummus e pita croccante', descrizione: 'Ceci, tahina, paprika affumicata', allergeni: '1, 11', prezzo: '€ 8' },
+      ],
+      'Tapas Calde': [
+        { nome: 'Croquetas di baccalà', descrizione: 'Crema di patate, baccalà mantecato', allergeni: '1, 3, 4, 7', prezzo: '€ 9' },
+        { nome: 'Arancini al nero di seppia', descrizione: 'Riso, ragù di mare, mozzarella', allergeni: '1, 2, 3, 4, 7, 14', prezzo: '€ 9' },
+        { nome: 'Polpette di carne alla brace', descrizione: 'Salsa barbecue artigianale', allergeni: '1, 3', prezzo: '€ 10' },
+        { nome: 'Patatas bravas', descrizione: 'Salsa piccante, aioli', allergeni: '3', prezzo: '€ 8' },
+      ],
+      'Taglieri': [
+        { nome: 'Tagliere Giapponese', descrizione: 'Salmone, tonno, branzino affumicato, wasabi, zenzero', allergeni: '1, 4, 11', prezzo: '€ 22' },
+        { nome: 'Tagliere Italiano', descrizione: 'Salumi misti, formaggi stagionati, miele, noci', allergeni: '1, 7, 8', prezzo: '€ 20' },
+        { nome: 'Tagliere Misto KUMO', descrizione: 'Selezione dello chef tra mare e terra', allergeni: '1, 4, 7, 8, 12', prezzo: '€ 26' },
+      ],
+      'Dolci': [
+        { nome: 'Mochi al cioccolato', descrizione: 'Riso glutinoso, ganache fondente', allergeni: '1, 7', prezzo: '€ 7' },
+        { nome: 'Tirasimu', descrizione: 'Variante KUMO del classico tiramisù', allergeni: '1, 3, 7', prezzo: '€ 8' },
+        { nome: 'Panna cotta al matcha', descrizione: 'Coulis di frutti rossi', allergeni: '7', prezzo: '€ 7' },
+      ],
+    };
+    const cats = Object.keys(allGroupsBar);
+    renderBarTabs(cats, 'Tutti');
+    filterBarMenu('Tutti');
+    return;
+  }
+
+  try {
+    const res = await fetch(SHEET_URL_BAR);
+    if (!res.ok) throw new Error('Errore fetch bar');
+    const text = await res.text();
+    const items = parseCSV(text);
+    allGroupsBar = groupByCategory(items);
+    const cats = Object.keys(allGroupsBar).sort((a,b) => (CAT_CONFIG_BAR[a]?.order||99) - (CAT_CONFIG_BAR[b]?.order||99));
+    renderBarTabs(cats, 'Tutti');
+    filterBarMenu('Tutti');
+  } catch(e) {
+    grid.innerHTML = `<div class="menu-error">Impossibile caricare il menu bar.<br><a href="#">Riprova</a></div>`;
+  }
+}
+
+function renderBarTabs(categories, active) {
+  const tabsEl = document.getElementById('barTabs');
+  tabsEl.innerHTML = ['Tutti', ...categories].map(cat => `
+    <button class="menu-tab${cat === active ? ' active' : ''}" data-cat="${cat}">${cat}</button>
+  `).join('');
+  tabsEl.querySelectorAll('.menu-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabsEl.querySelectorAll('.menu-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filterBarMenu(btn.dataset.cat);
+    });
+  });
+}
+
+function filterBarMenu(cat) {
+  const grid = document.getElementById('barGrid');
+  const toShow = cat === 'Tutti' ? allGroupsBar : { [cat]: allGroupsBar[cat] };
+  grid.innerHTML = Object.keys(toShow)
+    .sort((a,b) => (CAT_CONFIG_BAR[a]?.order||99) - (CAT_CONFIG_BAR[b]?.order||99))
+    .map(c => renderBarCard(c, toShow[c]))
+    .join('');
+}
+
+function renderBarCard(cat, items) {
+  const cfg = CAT_CONFIG_BAR[cat] || { icon: '✦', label: '', order: 99 };
+  return `
+    <div class="menu-category reveal visible">
+      <p class="menu-cat-label">${cfg.icon} ${cfg.label || cat}</p>
+      <h3 class="menu-cat-title">${cat}</h3>
+      <ul class="menu-items">${renderMenuItems(items)}</ul>
+    </div>`;
 }
 
 
@@ -1650,6 +2051,266 @@ async function loadGallery() {
 }
 
 loadGallery();
+</script>
+
+
+<!-- ═══════════════════════════════════════════════
+     SOMMELIER AI MODAL
+══════════════════════════════════════════════════ -->
+<div class="som-overlay" id="somOverlay">
+  <button class="som-close" onclick="closeSommelier()">&#10005; Chiudi</button>
+  <div class="som-box">
+    <div class="som-header">
+      <div class="som-label">KUMO Restaurant</div>
+      <h2 class="som-title">IL TUO SOMMELIER</h2>
+      <div class="som-gline"></div>
+      <p class="som-sub">Rispondi a qualche domanda.<br>Troveremo insieme l&rsquo;<em>abbinamento perfetto</em> per la tua serata.</p>
+    </div>
+    <div class="som-pw"><div class="som-pd" id="sp0"></div><div class="som-pd" id="sp1"></div><div class="som-pd" id="sp2"></div></div>
+
+    <!-- Step 0: Piatti -->
+    <div class="som-step active" id="ss0">
+      <div class="som-slabel">Passo 01 / 03</div>
+      <h3 class="som-stitle">Cosa stai <em>ordinando</em>?</h3>
+      <p class="som-shint">Seleziona la portata principale &mdash; costruiremo l&rsquo;abbinamento intorno ai tuoi piatti.</p>
+      <div class="som-dgrid" id="somDishGrid"></div>
+      <div class="som-navb">
+        <button class="som-bnext" id="somBndish" onclick="somGo(1)" disabled>Avanti &rarr;</button>
+      </div>
+    </div>
+
+    <!-- Step 1: Gusti -->
+    <div class="som-step" id="ss1">
+      <div class="som-slabel">Passo 02 / 03</div>
+      <h3 class="som-stitle">I tuoi <em>gusti</em></h3>
+      <p class="som-shint">Scegli il profilo che ti rappresenta per ogni dimensione.</p>
+      <div class="som-trows" id="somTasteRows"></div>
+      <div class="som-navb">
+        <button class="som-bback" onclick="somGo(0)">&larr; Indietro</button>
+        <button class="som-bnext" id="somBntaste" onclick="somGen()" disabled>Consigliami &rarr;</button>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div class="som-result" id="somResult">
+      <div class="som-slabel" style="margin-bottom:1.2rem">Passo 03 / 03</div>
+      <h3 class="som-stitle" style="margin-bottom:.35rem">I tuoi <em>consigli</em></h3>
+      <p class="som-shint">Selezioni su misura dalla nostra carta.</p>
+      <div class="som-rload" id="somLoading"><div class="som-lring"></div><div class="som-ltxt">Il sommelier sta scegliendo&hellip;</div></div>
+      <div id="somContent" style="display:none">
+        <div class="som-rsection">Vini</div>
+        <div class="som-cards2">
+          <div class="som-rc d1" id="sw1"><div class="som-rcc som-tl"></div><div class="som-rcc som-tr"></div><div class="som-rcc som-bl"></div><div class="som-rcc som-br"></div><div class="som-rtier" id="swt1"></div><div class="som-rname" id="swn1">&#8212;</div><div class="som-rtype" id="swty1"></div><div class="som-rdiv"></div><div class="som-rnarr" id="swr1">&#8212;</div><div class="som-rprice" id="swp1">&#8212;</div><div class="som-rpair"><div class="som-plbl">&#10022; Abbinamento</div><div class="som-ptxt" id="swpa1">&#8212;</div></div></div>
+          <div class="som-rc d2" id="sw2"><div class="som-rcc som-tl"></div><div class="som-rcc som-tr"></div><div class="som-rcc som-bl"></div><div class="som-rcc som-br"></div><div class="som-rtier" id="swt2"></div><div class="som-rname" id="swn2">&#8212;</div><div class="som-rtype" id="swty2"></div><div class="som-rdiv"></div><div class="som-rnarr" id="swr2">&#8212;</div><div class="som-rprice" id="swp2">&#8212;</div><div class="som-rpair"><div class="som-plbl">&#10022; Abbinamento</div><div class="som-ptxt" id="swpa2">&#8212;</div></div></div>
+        </div>
+        <div class="som-rsection">Cocktail</div>
+        <div class="som-cards2">
+          <div class="som-rc d3" id="sc1"><div class="som-rcc som-tl"></div><div class="som-rcc som-tr"></div><div class="som-rcc som-bl"></div><div class="som-rcc som-br"></div><div class="som-rtier" id="sct1"></div><div class="som-rname" id="scn1">&#8212;</div><div class="som-rtype" id="scty1"></div><div class="som-rdiv"></div><div class="som-rnarr" id="scr1">&#8212;</div><div class="som-rprice" id="scp1">&#8212;</div><div class="som-rpair"><div class="som-plbl">&#10022; Abbinamento</div><div class="som-ptxt" id="scpa1">&#8212;</div></div></div>
+          <div class="som-rc d4" id="sc2"><div class="som-rcc som-tl"></div><div class="som-rcc som-tr"></div><div class="som-rcc som-bl"></div><div class="som-rcc som-br"></div><div class="som-rtier" id="sct2"></div><div class="som-rname" id="scn2">&#8212;</div><div class="som-rtype" id="scty2"></div><div class="som-rdiv"></div><div class="som-rnarr" id="scr2">&#8212;</div><div class="som-rprice" id="scp2">&#8212;</div><div class="som-rpair"><div class="som-plbl">&#10022; Abbinamento</div><div class="som-ptxt" id="scpa2">&#8212;</div></div></div>
+        </div>
+        <div class="som-rsection">Calici Selezionati</div>
+        <div class="som-cards2">
+          <div class="som-calice-card d5" id="scal1"><div class="som-ceyebrow">&#10022; Calice del Momento</div><div class="som-cname" id="scaln1">&#8212;</div><div class="som-cregion" id="scalr1"></div><div class="som-cdesc" id="scald1">&#8212;</div><div class="som-cprice" id="scalp1">&#8212;</div></div>
+          <div class="som-calice-card d6" id="scal2"><div class="som-ceyebrow">&#10022; Calice Riserva</div><div class="som-cname" id="scaln2">&#8212;</div><div class="som-cregion" id="scalr2"></div><div class="som-cdesc" id="scald2">&#8212;</div><div class="som-cprice" id="scalp2">&#8212;</div></div>
+        </div>
+        <button class="som-rst" onclick="somRestart()">Ricomincia da capo</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══ SOMMELIER AI ══════════════════════════════════════════════════
+const SOM_DISHES = [
+  {id:'sushi', label:'Sushi', desc:'Nigiri, sashimi, uramaki'},
+  {id:'pesce', label:'Pesce', desc:'Scelte di mare'},
+  {id:'carne', label:'Carne', desc:'Scelte di terra'},
+  {id:'misto', label:'Misto', desc:'Mare e terra insieme'},
+];
+const SOM_TASTES = [
+  {id:'fr', label:'Freschezza', a:'Fresco',    m:'Bilanciato',  b:'Rotondo'},
+  {id:'ls', label:'Corpo',      a:'Leggero',   m:'Equilibrato', b:'Strutturato'},
+  {id:'ad', label:'Aroma',      a:'Aromatico', m:'Sfumato',     b:'Delicato'},
+  {id:'sd', label:'Residuo',    a:'Secco',     m:'Abboccato',   b:'Dolce'},
+];
+let somState = {dish: null, tastes: {}};
+let somMenuData = null; // cache della carta
+
+// Init DOM
+document.getElementById('somDishGrid').innerHTML = SOM_DISHES.map(d =>
+  `<div class="som-card" id="sdish-${d.id}" onclick="somTDish('${d.id}')">
+    <span class="som-chk">&#10022;</span>
+    <div class="som-on">${d.label}</div>
+    <div class="som-od">${d.desc}</div>
+  </div>`).join('');
+
+document.getElementById('somTasteRows').innerHTML = SOM_TASTES.map(t =>
+  `<div class="som-trow">
+    <div class="som-trow-label">${t.label}</div>
+    <div class="som-tbtns">
+      <button class="som-tbtn" id="stb-${t.id}-a" onclick="somTT('${t.id}','a')">${t.a}</button>
+      <button class="som-tbtn" id="stb-${t.id}-m" onclick="somTT('${t.id}','m')">${t.m}</button>
+      <button class="som-tbtn" id="stb-${t.id}-b" onclick="somTT('${t.id}','b')">${t.b}</button>
+    </div>
+  </div>`).join('');
+
+function openSommelier() {
+  document.getElementById('somOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeSommelier() {
+  document.getElementById('somOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+// Close on ESC key
+document.addEventListener('keydown', function(e){
+  if(e.key==='Escape') closeSommelier();
+});
+// Close on click outside the box
+document.getElementById('somOverlay').addEventListener('click', function(e){
+  if(e.target === this) closeSommelier();
+});
+
+function somProg(n) {
+  for(let i=0;i<3;i++){
+    const d=document.getElementById('sp'+i);
+    d.className='som-pd'+(i<n?' dn':i===n?' act':'');
+  }
+}
+function somGo(n) {
+  document.querySelectorAll('.som-step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('somResult').style.display='none';
+  if(n===2){ document.getElementById('somResult').style.display='block'; }
+  else { document.getElementById('ss'+n).classList.add('active'); }
+  somProg(n);
+}
+function somTDish(id) {
+  if(somState.dish) document.getElementById('sdish-'+somState.dish).classList.remove('sel');
+  somState.dish = (somState.dish===id) ? null : id;
+  if(somState.dish) document.getElementById('sdish-'+id).classList.add('sel');
+  document.getElementById('somBndish').disabled = !somState.dish;
+}
+function somTT(tid, val) {
+  ['a','m','b'].forEach(k=>document.getElementById('stb-'+tid+'-'+k).classList.remove('sel'));
+  if(somState.tastes[tid]===val){ delete somState.tastes[tid]; }
+  else { somState.tastes[tid]=val; document.getElementById('stb-'+tid+'-'+val).classList.add('sel'); }
+  document.getElementById('somBntaste').disabled = Object.keys(somState.tastes).length < 4;
+}
+
+// Fetch carta vini dal foglio Google
+async function somFetchMenu() {
+  if(somMenuData) return somMenuData;
+  try {
+    const r = await fetch(SHEET_URL);
+    const text = await r.text();
+    const items = parseCSV(text);
+    somMenuData = items;
+    return items;
+  } catch(e) { return []; }
+}
+
+async function somGen() {
+  somGo(2);
+  document.getElementById('somLoading').style.display='block';
+  document.getElementById('somContent').style.display='none';
+  ['sw1','sw2','sc1','sc2','scal1','scal2'].forEach(id=>document.getElementById(id).classList.remove('vis'));
+
+  const dish = SOM_DISHES.find(d=>d.id===somState.dish);
+  const tasteDesc = SOM_TASTES.map(t=>{
+    const v=somState.tastes[t.id];
+    return `- ${t.label}: ${v==='a'?t.a:v==='b'?t.b:t.m}`;
+  }).join('\n');
+
+  // Fetch carta reale
+  const menuItems = await somFetchMenu();
+  const wineItems = menuItems.filter(i => ALL_WINE_CATS.includes(i.categoria));
+  
+  let menuContext = '';
+  if(wineItems.length > 0) {
+    menuContext = '\n\nCARTA VINI DISPONIBILE (scegli SOLO da questi vini, rispettando nome e prezzo esatti):\n';
+    wineItems.forEach(w => {
+      menuContext += `- [${w.categoria}] ${w.nome}`;
+      if(w.descrizione) menuContext += ` — ${w.descrizione}`;
+      if(w.prezzo) menuContext += ` | ${w.prezzo}`;
+      menuContext += '\n';
+    });
+    menuContext += "\nSe la carta e' troppo limitata per soddisfare i gusti, puoi suggerire anche un cocktail o calice appropriato.";
+  }
+
+  const prompt = `Sei il sommelier esclusivo di KUMO Restaurant, ristorante di sushi e carne alla griglia, stile elegante nero-oro.
+
+Il cliente ha ordinato: ${dish.label} (${dish.desc})
+
+Profilo gustativo:
+${tasteDesc}
+${menuContext}
+
+Consiglia ESATTAMENTE:
+- 2 vini: uno accessibile e uno premium${wineItems.length > 0 ? ' (scegli dalla carta disponibile sopra)' : ' (suggerisci vini reali adatti)'}
+- 2 cocktail: uno classico e uno signature KUMO (puoi inventarli in stile orientale-elegante)
+- 2 calici: vini al calice con breve descrizione diretta${wineItems.length > 0 ? ' (dalla carta se disponibili)' : ''}
+
+Rispondi SOLO con JSON puro, senza backtick:
+{"vino1":{"tier":"Selezione Essenziale","nome":"...","tipo":"...","prezzo":"...","narrativa":"3 frasi poetiche stile sommelier","abbinamento":"1 frase"},"vino2":{"tier":"Selezione Premium","nome":"...","tipo":"...","prezzo":"...","narrativa":"3 frasi poetiche stile sommelier","abbinamento":"1 frase"},"cocktail1":{"tier":"Classico","nome":"...","tipo":"...","prezzo":"...","narrativa":"3 frasi evocative","abbinamento":"1 frase"},"cocktail2":{"tier":"Signature KUMO","nome":"...","tipo":"...","prezzo":"...","narrativa":"3 frasi evocative","abbinamento":"1 frase"},"calice1":{"nome":"...","regione":"...","descrizione":"2 frasi brevi","prezzo":"..."},"calice2":{"nome":"...","regione":"...","descrizione":"2 frasi brevi","prezzo":"..."}}`;
+
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({model:'claude-sonnet-4-20250514', max_tokens:1600, messages:[{role:'user',content:prompt}]})
+    });
+    const data = await r.json();
+    const txt = data.content?.[0]?.text||'{}';
+    const rec = JSON.parse(txt.replace(/```json|```/g,'').trim());
+
+    function fillW(n,o){
+      document.getElementById('swt'+n).textContent=o.tier||'';
+      document.getElementById('swn'+n).textContent=o.nome||'—';
+      document.getElementById('swty'+n).textContent=o.tipo||'';
+      document.getElementById('swr'+n).textContent=o.narrativa||'—';
+      document.getElementById('swp'+n).textContent=o.prezzo||'—';
+      document.getElementById('swpa'+n).textContent=o.abbinamento||'—';
+    }
+    function fillC(n,o){
+      document.getElementById('sct'+n).textContent=o.tier||'';
+      document.getElementById('scn'+n).textContent=o.nome||'—';
+      document.getElementById('scty'+n).textContent=o.tipo||'';
+      document.getElementById('scr'+n).textContent=o.narrativa||'—';
+      document.getElementById('scp'+n).textContent=o.prezzo||'—';
+      document.getElementById('scpa'+n).textContent=o.abbinamento||'—';
+    }
+    function fillCal(n,o){
+      document.getElementById('scaln'+n).textContent=o.nome||'—';
+      document.getElementById('scalr'+n).textContent=o.regione||'';
+      document.getElementById('scald'+n).textContent=o.descrizione||'—';
+      document.getElementById('scalp'+n).textContent=o.prezzo||'—';
+    }
+    fillW(1,rec.vino1||{}); fillW(2,rec.vino2||{});
+    fillC(1,rec.cocktail1||{}); fillC(2,rec.cocktail2||{});
+    fillCal(1,rec.calice1||{}); fillCal(2,rec.calice2||{});
+
+    document.getElementById('somLoading').style.display='none';
+    document.getElementById('somContent').style.display='block';
+    ['sw1','sw2','sc1','sc2','scal1','scal2'].forEach((id,i)=>{
+      setTimeout(()=>document.getElementById(id).classList.add('vis'), i*90);
+    });
+  } catch(e) {
+    document.getElementById('somLoading').style.display='none';
+    document.getElementById('swn1').textContent='Errore di connessione';
+    document.getElementById('swr1').textContent='Riprova tra un momento.';
+    document.getElementById('somContent').style.display='block';
+    document.getElementById('sw1').classList.add('vis');
+  }
+}
+
+function somRestart() {
+  somState = {dish:null, tastes:{}};
+  document.querySelectorAll('.som-card,.som-tbtn').forEach(c=>c.classList.remove('sel'));
+  document.getElementById('somBndish').disabled=true;
+  document.getElementById('somBntaste').disabled=true;
+  somGo(0);
+}
+somProg(0);
+// ═══ END SOMMELIER ═════════════════════════════════════════════════
 </script>
 
 </body>
