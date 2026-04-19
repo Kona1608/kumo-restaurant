@@ -2941,7 +2941,7 @@ function somTT(tid, val) {
 async function somFetchMenu() {
   if(somMenuData) return somMenuData;
   try {
-    const r = await fetch(SHEET_URL);
+    const r = await fetch(SHEET_URL_BEVANDE);
     const text = await r.text();
     const items = parseCSV(text);
     somMenuData = items;
