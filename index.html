@@ -712,6 +712,7 @@
     position: absolute;
     inset: 0;
     background: radial-gradient(ellipse 70% 50% at 50% 80%, rgba(201,165,90,0.04) 0%, transparent 70%);
+    pointer-events: none;
   }
   .vini-grid {
     max-width: 1100px;
@@ -2648,15 +2649,7 @@ function renderAccordion(containerId, sections, iconMap) {
   });
 }
 
-// Event delegation globale: cattura click su qualsiasi punto dell'accordion
-document.addEventListener('click', function(e) {
-  const header = e.target.closest('.vini-acc-header');
-  if(!header) return;
-  const body = header.nextElementSibling;
-  const isOpen = header.classList.contains('open');
-  header.classList.toggle('open', !isOpen);
-  if(body) body.classList.toggle('open', !isOpen);
-});
+// Listener diretto attaccato a ogni header in renderAccordion sotto
 
 function renderVini(groups) {
   const sections = {}, iconMap = {};
