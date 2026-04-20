@@ -1852,8 +1852,8 @@
   }
   .vini-acc-header:hover { background: rgba(201,165,90,0.04); }
   .vini-acc-header.open { background: rgba(201,165,90,0.06); border-bottom: 0.5px solid rgba(201,165,90,0.15); }
-  .vini-acc-left { display: flex; align-items: center; gap: 1rem; pointer-events: none; }
-  .vini-acc-icon { font-size: 0.6rem; color: var(--gold); pointer-events: none; }
+  .vini-acc-left { display: flex; align-items: center; gap: 1rem; }
+  .vini-acc-icon { font-size: 0.6rem; color: var(--gold); }
   .vini-acc-title {
     font-family: 'Playfair Display', serif;
     font-size: 1rem;
@@ -1862,7 +1862,7 @@
     letter-spacing: 0.04em;
   }
   .vini-acc-count { font-size: 0.58rem; color: var(--gold-dark); margin-left: 0.5rem; }
-  .vini-acc-arrow { width:16px; height:16px; position:relative; flex-shrink:0; pointer-events: none; }
+  .vini-acc-arrow { width:16px; height:16px; position:relative; flex-shrink:0; }
   .vini-acc-arrow::before,.vini-acc-arrow::after { content:''; position:absolute; background:var(--gold-dark); border-radius:1px; transition:transform 0.3s,background 0.3s; }
   .vini-acc-arrow::before { width:10px;height:1px;top:50%;left:50%;transform:translate(-50%,-50%) rotate(45deg); }
   .vini-acc-arrow::after  { width:10px;height:1px;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-45deg); }
@@ -2624,7 +2624,7 @@ function renderAccordion(containerId, sections, iconMap) {
     const items = sections[key];
     const icon = iconMap && iconMap[key] ? iconMap[key] : '✦';
     return `<div class="vini-acc-section">
-      <div class="vini-acc-header" onclick="toggleViniAcc(this)">
+      <div class="vini-acc-header">
         <div class="vini-acc-left">
           <span class="vini-acc-icon">${icon}</span>
           <span class="vini-acc-title">${key}<span class="vini-acc-count">(${items.length})</span></span>
@@ -2636,13 +2636,27 @@ function renderAccordion(containerId, sections, iconMap) {
       </div>
     </div>`;
   }).join('');
+
+  // Attach click listener directly to each header for maximum reliability
+  el.querySelectorAll('.vini-acc-header').forEach(header => {
+    header.addEventListener('click', function() {
+      const body = this.nextElementSibling;
+      const isOpen = this.classList.contains('open');
+      this.classList.toggle('open', !isOpen);
+      if(body) body.classList.toggle('open', !isOpen);
+    });
+  });
 }
 
-function toggleViniAcc(header) {
+// Event delegation globale: cattura click su qualsiasi punto dell'accordion
+document.addEventListener('click', function(e) {
+  const header = e.target.closest('.vini-acc-header');
+  if(!header) return;
   const body = header.nextElementSibling;
-  header.classList.toggle('open', !header.classList.contains('open'));
-  body.classList.toggle('open', !body.classList.contains('open'));
-}
+  const isOpen = header.classList.contains('open');
+  header.classList.toggle('open', !isOpen);
+  if(body) body.classList.toggle('open', !isOpen);
+});
 
 function renderVini(groups) {
   const sections = {}, iconMap = {};
