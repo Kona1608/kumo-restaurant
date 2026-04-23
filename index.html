@@ -1871,6 +1871,18 @@
   .vini-acc-header.open .vini-acc-arrow::after  { transform:translate(-50%,-50%) rotate(45deg); background:var(--gold); }
   .vini-acc-body { max-height:0; overflow:hidden; transition:max-height 0.45s ease; padding:0 1.8rem; }
   .vini-acc-body.open { max-height:2000px; padding-bottom:1rem; }
+  .vino-subcat-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.75rem;
+    font-style: italic;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    padding: 1.2rem 0 0.6rem;
+    border-bottom: 0.5px solid rgba(201,165,90,0.15);
+    margin-bottom: 0.4rem;
+  }
+  .vino-subcat-title:first-child { padding-top: 0.4rem; }
   @media (max-width:768px) {
     .vini-accordion { padding:0; }
     .vini-acc-header { padding:1rem 1.2rem; }
@@ -2264,7 +2276,7 @@ const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQmQqLvzBWI-e
 // BAR — Inserisci qui il link CSV del tuo
 // Google Sheet con il menu del Bar/Tapas
 // =============================================
-const SHEET_URL_BAR = 'INCOLLA_QUI_IL_CSV_DEL_BAR';
+const SHEET_URL_BAR = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQmQqLvzBWI-eP8VEQVG6WFnzVFHl9XnhGbnY-mINmGyA61gbSc4hNGoA5dLxtgo2eQOg_F9YiT936i/pub?gid=848008548&single=true&output=csv';
 const SHEET_URL_BEVANDE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQmQqLvzBWI-eP8VEQVG6WFnzVFHl9XnhGbnY-mINmGyA61gbSc4hNGoA5dLxtgo2eQOg_F9YiT936i/pub?gid=1321126213&single=true&output=csv';
 
 // Ordine e icone delle categorie RESTAURANT
@@ -2551,11 +2563,30 @@ function filterBarMenu(cat) {
 
 function renderBarCard(cat, items) {
   const cfg = CAT_CONFIG_BAR[cat] || { icon: '✦', label: '', order: 99 };
+  const hasSubs = items.some(i => i.sottocategoria);
+
+  let bodyHTML;
+  if (hasSubs) {
+    const { groups, order } = groupBySubcat(items);
+    bodyHTML = order.map(sub => `
+      <div class="menu-subcat">
+        <div class="menu-subcat-header" onclick="toggleSubcat(this)">
+          <span class="menu-subcat-title">${sub}<span class="menu-subcat-count">(${groups[sub].length})</span></span>
+          <span class="menu-subcat-arrow"></span>
+        </div>
+        <div class="menu-subcat-body">
+          <ul class="menu-items">${renderMenuItems(groups[sub])}</ul>
+        </div>
+      </div>`).join('');
+  } else {
+    bodyHTML = `<ul class="menu-items">${renderMenuItems(items)}</ul>`;
+  }
+
   return `
     <div class="menu-category reveal visible">
       <p class="menu-cat-label">${cfg.icon} ${cfg.label || cat}</p>
       <h3 class="menu-cat-title">${cfg.title || cat}</h3>
-      <ul class="menu-items">${renderMenuItems(items)}</ul>
+      ${bodyHTML}
     </div>`;
 }
 
@@ -2609,11 +2640,30 @@ const PH_BIRRE = {
 };
 
 function renderWineItems(items) {
-  return items.map(v => `<div class="vino-item">
-    <div class="vino-nome">${v.nome}</div>
-    <div class="vino-prezzo">${v.prezzo}</div>
-    <div class="vino-dettaglio">${v.descrizione||''}</div>
-  </div>`).join('');
+  const hasSubs = items.some(v => v.sottocategoria);
+  if (!hasSubs) {
+    return items.map(v => `<div class="vino-item">
+      <div class="vino-nome">${v.nome}</div>
+      <div class="vino-prezzo">${v.prezzo}</div>
+      <div class="vino-dettaglio">${v.descrizione||''}</div>
+    </div>`).join('');
+  }
+  // Raggruppa per sottocategoria mantenendo l'ordine di apparizione
+  const groups = {};
+  const order = [];
+  items.forEach(v => {
+    const sub = v.sottocategoria || 'Altro';
+    if (!groups[sub]) { groups[sub] = []; order.push(sub); }
+    groups[sub].push(v);
+  });
+  return order.map(sub => {
+    const rows = groups[sub].map(v => `<div class="vino-item">
+      <div class="vino-nome">${v.nome}</div>
+      <div class="vino-prezzo">${v.prezzo}</div>
+      <div class="vino-dettaglio">${v.descrizione||''}</div>
+    </div>`).join('');
+    return `<div class="vino-subcat-title">${sub}</div>${rows}`;
+  }).join('');
 }
 
 function renderAccordion(containerId, sections, iconMap) {
