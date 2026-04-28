@@ -2358,7 +2358,16 @@ const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQmQqLvzBWI-e
 // Google Sheet con il menu del Bar/Tapas
 // =============================================
 const SHEET_URL_BAR = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQmQqLvzBWI-eP8VEQVG6WFnzVFHl9XnhGbnY-mINmGyA61gbSc4hNGoA5dLxtgo2eQOg_F9YiT936i/pub?gid=848008548&single=true&output=csv';
-const SHEET_URL_BEVANDE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQmQqLvzBWI-eP8VEQVG6WFnzVFHl9XnhGbnY-mINmGyA61gbSc4hNGoA5dLxtgo2eQOg_F9YiT936i/pub?gid=1321126213&single=true&output=csv';
+// =============================================
+// BEVANDE — 3 fogli separati su Google Sheets
+// Dopo aver importato l'Excel e pubblicato ogni
+// foglio come CSV, incolla i 3 link qui sotto.
+// Per pubblicare: File → Condividi → Pubblica sul web
+//   → seleziona il foglio → formato CSV → Pubblica
+// =============================================
+const SHEET_URL_VINI     = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQmQqLvzBWI-eP8VEQVG6WFnzVFHl9XnhGbnY-mINmGyA61gbSc4hNGoA5dLxtgo2eQOg_F9YiT936i/pub?gid=1114446496&single=true&output=csv';
+const SHEET_URL_COCKTAIL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQmQqLvzBWI-eP8VEQVG6WFnzVFHl9XnhGbnY-mINmGyA61gbSc4hNGoA5dLxtgo2eQOg_F9YiT936i/pub?gid=1954988821&single=true&output=csv';
+const SHEET_URL_BIRRE    = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQmQqLvzBWI-eP8VEQVG6WFnzVFHl9XnhGbnY-mINmGyA61gbSc4hNGoA5dLxtgo2eQOg_F9YiT936i/pub?gid=1448766817&single=true&output=csv';
 
 // Ordine e icone delle categorie RESTAURANT
 const CAT_CONFIG = {
@@ -2394,11 +2403,9 @@ function switchMode(mode) {
   }
 }
 
-// Categorie vini — calice e bottiglia
-const WINE_CALICE_CATS = ['Bollicine al Calice','Bianchi al Calice','Rossi al Calice','Rosati al Calice'];
-const WINE_BOTTIGLIA_CATS = ['Bollicine','Bianchi','Rossi','Rosati','Dessert'];
-const ALL_WINE_CATS = [...new Set([...WINE_CALICE_CATS, ...WINE_BOTTIGLIA_CATS, 'Bollicine','Bianchi','Rossi','Rosati','Dessert'])];
+// ── PARSER CSV PER OGNI FOGLIO ──────────────────────────────
 
+// Parser generico (usato da menu ristorante e bar)
 function parseCSV(text) {
   function parseRow(line) {
     const cols = [];
@@ -2425,6 +2432,117 @@ function parseCSV(text) {
       prezzo:         row[5] || ''
     };
   }).filter(r => r.nome);
+}
+
+// Parser foglio "Vini & Bollicine"
+// Colonne: Categoria | Sottocategoria | Nome | Descrizione | Produttore | Calice | Bottiglia
+function parseCSVVini(text) {
+  function parseRow(line) {
+    const cols = []; let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else { cur += ch; }
+    }
+    cols.push(cur.trim());
+    return cols;
+  }
+  const lines = text.trim().split('\n').slice(1);
+  const items = [];
+  lines.forEach(line => {
+    const r = parseRow(line);
+    const nome = r[2] || '';
+    if (!nome) return;
+    const categoria       = r[0] || '';
+    const sottocategoria  = r[1] || '';
+    const descrizione     = r[3] || '';
+    const produttore      = r[4] || '';
+    const prezzoCalice    = r[5] || '';
+    const prezzoBottiglia = r[6] || '';
+    // Dettaglio visuale: descrizione + produttore
+    const descDisplay = [descrizione, produttore].filter(x => x && x !== '—').join(' — ');
+    // Item bottiglia (per sommelier: categoria originale)
+    if (prezzoBottiglia && prezzoBottiglia !== '—') {
+      items.push({ categoria, sottocategoria, nome, descrizione: descDisplay,
+                   prezzoCalice, prezzoBottiglia, prezzo: prezzoBottiglia,
+                   _tipo: 'bottiglia' });
+    }
+    // Item calice (per sommelier: categoria + " al Calice")
+    if (prezzoCalice && prezzoCalice !== '—') {
+      items.push({ categoria: categoria + ' al Calice', sottocategoria, nome,
+                   descrizione: descDisplay, prezzoCalice, prezzoBottiglia,
+                   prezzo: prezzoCalice, _tipo: 'calice' });
+    }
+    // Se nessun prezzo, aggiungi comunque per la visualizzazione
+    if ((!prezzoBottiglia || prezzoBottiglia === '—') && (!prezzoCalice || prezzoCalice === '—')) {
+      items.push({ categoria, sottocategoria, nome, descrizione: descDisplay,
+                   prezzoCalice: '', prezzoBottiglia: '', prezzo: '—', _tipo: 'bottiglia' });
+    }
+  });
+  return items;
+}
+
+// Parser foglio "Cocktail"
+// Colonne: Categoria | Sottocategoria | Nome | Descrizione | Base Alcolica | Prezzo
+function parseCSVCocktail(text) {
+  function parseRow(line) {
+    const cols = []; let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else { cur += ch; }
+    }
+    cols.push(cur.trim());
+    return cols;
+  }
+  return text.trim().split('\n').slice(1).map(line => {
+    const r = parseRow(line);
+    const nome = r[2] || '';
+    if (!nome) return null;
+    const base = r[4] || '';
+    // Descrizione visuale: testo descrizione, base alcolica in secondaria
+    return {
+      categoria:      'Cocktail',
+      sottocategoria: r[1] || '',
+      nome,
+      descrizione:    r[3] || '',
+      dettaglio:      base,
+      prezzo:         r[5] || ''
+    };
+  }).filter(Boolean);
+}
+
+// Parser foglio "Birre"
+// Colonne: Categoria | Sottocategoria | Nome | Descrizione | Produttore | Origine | Formato | Prezzo
+function parseCSVBirre(text) {
+  function parseRow(line) {
+    const cols = []; let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else { cur += ch; }
+    }
+    cols.push(cur.trim());
+    return cols;
+  }
+  return text.trim().split('\n').slice(1).map(line => {
+    const r = parseRow(line);
+    const nome = r[2] || '';
+    if (!nome) return null;
+    const formato = r[6] || '';
+    const origine = r[5] || '';
+    const desc    = [r[3], formato, origine].filter(x => x && x !== '—').join(' · ');
+    return {
+      categoria:      'Birre',
+      sottocategoria: r[1] || '',
+      nome,
+      descrizione:    desc,
+      prezzo:         r[7] || ''
+    };
+  }).filter(Boolean);
 }
 
 function groupByCategory(items) {
@@ -2696,11 +2814,10 @@ function renderWineCol(title, items) {
 
 // ── ACCORDION HELPERS ──────────────────────────────────────
 const VINO_SECTIONS = [
-  { label:'Bollicine', icon:'✦', cats:['Bollicine','Bollicine al Calice'] },
-  { label:'Vini Bianchi', icon:'○', cats:['Bianchi','Bianchi al Calice'] },
-  { label:'Vini Rossi',   icon:'●', cats:['Rossi','Rossi al Calice'] },
-  { label:'Vini Rosati',  icon:'◇', cats:['Rosati','Rosati al Calice'] },
-  { label:'Vini Dessert', icon:'◈', cats:['Dessert'] },
+  { label:'Bollicine',    icon:'✦', cats:['Bollicine'] },
+  { label:'Vini Bianchi', icon:'○', cats:['Bianchi'] },
+  { label:'Vini Rossi',   icon:'●', cats:['Rossi'] },
+  { label:'Vini Rosati',  icon:'◇', cats:['Rosati'] },
 ];
 
 const PH_VINI = {
@@ -2720,17 +2837,37 @@ const PH_BIRRE = {
 
 function renderWineItems(items) {
   const hasSubs = items.some(v => v.sottocategoria);
+  // Rimuovi duplicati calice/bottiglia per la visualizzazione
+  // (mostra ogni vino una sola volta con entrambi i prezzi)
+  const seen = new Set();
+  const deduped = [];
+  items.forEach(v => {
+    const key = v.nome + (v.sottocategoria || '');
+    if (!seen.has(key)) {
+      seen.add(key);
+      // Trova eventuale versione calice dello stesso vino per mostrare entrambi i prezzi
+      const caliceVersion = items.find(x => x.nome === v.nome && x._tipo === 'calice');
+      const bottigliaVersion = items.find(x => x.nome === v.nome && x._tipo === 'bottiglia');
+      const pc = (caliceVersion?.prezzoCalice || v.prezzoCalice || '').replace(/^—$/, '');
+      const pb = (bottigliaVersion?.prezzoBottiglia || v.prezzoBottiglia || '').replace(/^—$/, '');
+      let prezzoDisplay = '';
+      if (pc && pb) prezzoDisplay = `<span style="font-size:.85em;opacity:.7;display:block;font-style:normal;font-size:.78rem;letter-spacing:.05em">cal.</span>${pc}<span style="font-size:.7rem;opacity:.5;display:block;margin-top:.3rem">bott. ${pb}</span>`;
+      else if (pb) prezzoDisplay = pb;
+      else if (pc) prezzoDisplay = `${pc} <span style="font-size:.7rem;opacity:.6">cal.</span>`;
+      else prezzoDisplay = '—';
+      deduped.push({ ...v, prezzoDisplay });
+    }
+  });
+
   if (!hasSubs) {
-    return items.map(v => `<div class="vino-item">
+    return deduped.map(v => `<div class="vino-item">
       <div class="vino-nome">${v.nome}</div>
-      <div class="vino-prezzo">${v.prezzo}</div>
-      <div class="vino-dettaglio">${v.descrizione||''}</div>
+      <div class="vino-prezzo">${v.prezzoDisplay}</div>
+      <div class="vino-dettaglio">${v.descrizione || ''}</div>
     </div>`).join('');
   }
-  // Raggruppa per sottocategoria mantenendo l'ordine di apparizione
-  const groups = {};
-  const order = [];
-  items.forEach(v => {
+  const groups = {}, order = [];
+  deduped.forEach(v => {
     const sub = v.sottocategoria || 'Altro';
     if (!groups[sub]) { groups[sub] = []; order.push(sub); }
     groups[sub].push(v);
@@ -2738,8 +2875,8 @@ function renderWineItems(items) {
   return order.map(sub => {
     const rows = groups[sub].map(v => `<div class="vino-item">
       <div class="vino-nome">${v.nome}</div>
-      <div class="vino-prezzo">${v.prezzo}</div>
-      <div class="vino-dettaglio">${v.descrizione||''}</div>
+      <div class="vino-prezzo">${v.prezzoDisplay}</div>
+      <div class="vino-dettaglio">${v.descrizione || ''}</div>
     </div>`).join('');
     return `<div class="vino-subcat-title">${sub}</div>${rows}`;
   }).join('');
@@ -2781,46 +2918,87 @@ function renderAccordion(containerId, sections, iconMap) {
 // Listener diretto attaccato a ogni header in renderAccordion sotto
 
 function renderVini(groups) {
+  // Raggruppa per sezione (Bollicine, Bianchi, Rossi, Rosati)
+  // filtrando solo items _tipo='bottiglia' per evitare duplicati visivi
   const sections = {}, iconMap = {};
   VINO_SECTIONS.forEach(sec => {
-    const items = sec.cats.flatMap(cat => groups[cat] || []);
+    // Includi items originali (non quelli 'al Calice' creati per il sommelier)
+    const items = sec.cats.flatMap(cat => (groups[cat] || []).filter(i => i._tipo !== 'calice'));
     if (items.length) { sections[sec.label] = items; iconMap[sec.label] = sec.icon; }
   });
-  renderAccordion('viniGrid', Object.keys(sections).length ? sections : PH_VINI, Object.keys(sections).length ? iconMap : {'Bollicine':'✦','Vini Bianchi':'○','Vini Rossi':'●','Vini Dessert':'◈'});
+  renderAccordion('viniGrid',
+    Object.keys(sections).length ? sections : PH_VINI,
+    Object.keys(sections).length ? iconMap : {'Bollicine':'✦','Vini Bianchi':'○','Vini Rossi':'●','Vini Dessert':'◈'}
+  );
 }
 
-// Carica tutta la carta bevande da un unico Google Sheet
+// Carica carta bevande da 3 fogli Google Sheets separati
 async function loadBevande() {
-  try {
-    const res = await fetch(SHEET_URL_BEVANDE);
-    const text = await res.text();
-    const items = parseCSV(text);
+  const notConfigured = (url) => !url || url.startsWith('INCOLLA_QUI');
 
-    // Vini
-    const wineItems = items.filter(i => ALL_WINE_CATS.includes(i.categoria));
-    renderVini(groupByCategory(wineItems));
-
-    // Cocktail — categoria = 'Cocktail', sottocategoria = 'Signature' / 'Analcolici' ecc.
-    const cocktailItems = items.filter(i => i.categoria === 'Cocktail');
-    if (cocktailItems.length) {
-      renderAccordion('cocktailGrid', groupByCategory(cocktailItems.map(i => ({...i, categoria: i.sottocategoria || i.categoria}))), {});
-    } else {
-      renderAccordion('cocktailGrid', PH_COCKTAIL, {});
-    }
-
-    // Birre — categoria = 'Birre'
-    const birreItems = items.filter(i => i.categoria === 'Birre');
-    if (birreItems.length) {
-      renderAccordion('birreGrid', groupByCategory(birreItems.map(i => ({...i, categoria: i.sottocategoria || i.categoria}))), {});
-    } else {
-      renderAccordion('birreGrid', PH_BIRRE, {});
-    }
-
-  } catch(e) {
-    console.warn('Errore caricamento bevande:', e);
+  // ── VINI ──
+  if (notConfigured(SHEET_URL_VINI)) {
     renderVini({});
+  } else {
+    fetch(SHEET_URL_VINI)
+      .then(r => r.text())
+      .then(text => {
+        const items = parseCSVVini(text);
+        renderVini(groupByCategory(items));
+        // Salva per il sommelier
+        _somViniData = items;
+      })
+      .catch(() => renderVini({}));
+  }
+
+  // ── COCKTAIL ──
+  if (notConfigured(SHEET_URL_COCKTAIL)) {
     renderAccordion('cocktailGrid', PH_COCKTAIL, {});
+  } else {
+    fetch(SHEET_URL_COCKTAIL)
+      .then(r => r.text())
+      .then(text => {
+        const items = parseCSVCocktail(text);
+        if (items.length) {
+          // Per la visualizzazione raggruppa per sottocategoria
+          const bySub = {};
+          const order = [];
+          items.forEach(i => {
+            // Mostra come titolo la combinazione categoria + sottocategoria
+            const key = i.sottocategoria || i.categoria;
+            if (!bySub[key]) { bySub[key] = []; order.push(key); }
+            bySub[key].push(i);
+          });
+          renderAccordion('cocktailGrid', bySub, {});
+        } else {
+          renderAccordion('cocktailGrid', PH_COCKTAIL, {});
+        }
+        _somCocktailData = items;
+      })
+      .catch(() => renderAccordion('cocktailGrid', PH_COCKTAIL, {}));
+  }
+
+  // ── BIRRE ──
+  if (notConfigured(SHEET_URL_BIRRE)) {
     renderAccordion('birreGrid', PH_BIRRE, {});
+  } else {
+    fetch(SHEET_URL_BIRRE)
+      .then(r => r.text())
+      .then(text => {
+        const items = parseCSVBirre(text);
+        if (items.length) {
+          const bySub = {};
+          items.forEach(i => {
+            const key = i.sottocategoria || 'Birre';
+            if (!bySub[key]) bySub[key] = [];
+            bySub[key].push(i);
+          });
+          renderAccordion('birreGrid', bySub, {});
+        } else {
+          renderAccordion('birreGrid', PH_BIRRE, {});
+        }
+      })
+      .catch(() => renderAccordion('birreGrid', PH_BIRRE, {}));
   }
 }
 
@@ -3082,16 +3260,32 @@ function somTT(tid, val) {
   document.getElementById('somBntaste').disabled = Object.keys(somState.tastes).length < 1;
 }
 
-// Fetch carta vini dal foglio Google
+// Cache dati bevande per il sommelier
+let _somViniData     = null;
+let _somCocktailData = null;
+
+// Fetch carta vini/cocktail dal foglio Google — usato dal sommelier AI
 async function somFetchMenu() {
-  if(somMenuData) return somMenuData;
+  if (somMenuData) return somMenuData;
+  const notConfigured = (url) => !url || url.startsWith('INCOLLA_QUI');
+
   try {
-    const r = await fetch(SHEET_URL_BEVANDE);
-    const text = await r.text();
-    const items = parseCSV(text);
-    somMenuData = items;
-    return items;
-  } catch(e) { return []; }
+    const results = await Promise.allSettled([
+      notConfigured(SHEET_URL_VINI)     ? Promise.resolve([]) : fetch(SHEET_URL_VINI).then(r=>r.text()).then(parseCSVVini),
+      notConfigured(SHEET_URL_COCKTAIL) ? Promise.resolve([]) : fetch(SHEET_URL_COCKTAIL).then(r=>r.text()).then(parseCSVCocktail),
+    ]);
+
+    const viniItems     = results[0].status === 'fulfilled' ? results[0].value : (_somViniData || []);
+    const cocktailItems = results[1].status === 'fulfilled' ? results[1].value : (_somCocktailData || []);
+
+    // Per il sommelier: normalizza vini per avere categoria leggibile
+    // Bottiglie: categoria originale (es. "Bollicine", "Bianchi")
+    // Calici: categoria + " al Calice" (già gestito in parseCSVVini)
+    somMenuData = [...viniItems, ...cocktailItems];
+    return somMenuData;
+  } catch(e) {
+    return [];
+  }
 }
 
 // Fisher-Yates shuffle (non in-place)
@@ -3128,9 +3322,12 @@ async function somGen() {
 
   // Fetch carta reale e split in 3 liste filtrate + shuffle
   const allItems = await somFetchMenu();
-  const bottiglie = somShuffle(allItems.filter(i => WINE_BOTTIGLIA_CATS.includes(i.categoria)));
+  // Bottiglie: vini senza " al Calice" nel nome categoria
+  const VINO_CATS = ['Bollicine','Bianchi','Rossi','Rosati'];
+  const CALICE_CATS = VINO_CATS.map(c => c + ' al Calice');
+  const bottiglie = somShuffle(allItems.filter(i => VINO_CATS.includes(i.categoria)));
   const cocktails = somShuffle(allItems.filter(i => i.categoria === 'Cocktail'));
-  const calici    = somShuffle(allItems.filter(i => WINE_CALICE_CATS.includes(i.categoria)));
+  const calici    = somShuffle(allItems.filter(i => CALICE_CATS.includes(i.categoria)));
 
   const hasMenu = bottiglie.length + cocktails.length + calici.length > 0;
 
