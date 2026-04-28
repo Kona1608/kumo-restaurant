@@ -2467,17 +2467,21 @@ function parseCSVVini(text) {
       items.push({ categoria, sottocategoria, nome, descrizione: descDisplay,
                    prezzoCalice, prezzoBottiglia, prezzo: prezzoBottiglia,
                    _tipo: 'bottiglia' });
+    } else if (prezzoCalice && prezzoCalice !== '—') {
+      // Vino solo al calice: crea comunque un item _tipo 'bottiglia' per la visualizzazione
+      items.push({ categoria, sottocategoria, nome, descrizione: descDisplay,
+                   prezzoCalice, prezzoBottiglia: '', prezzo: prezzoCalice,
+                   _tipo: 'bottiglia' });
+    } else {
+      // Nessun prezzo: aggiungi comunque per non perdere il vino dalla lista
+      items.push({ categoria, sottocategoria, nome, descrizione: descDisplay,
+                   prezzoCalice: '', prezzoBottiglia: '', prezzo: '—', _tipo: 'bottiglia' });
     }
-    // Item calice (per sommelier: categoria + " al Calice")
+    // Item calice separato (solo per il sommelier — categoria + " al Calice")
     if (prezzoCalice && prezzoCalice !== '—') {
       items.push({ categoria: categoria + ' al Calice', sottocategoria, nome,
                    descrizione: descDisplay, prezzoCalice, prezzoBottiglia,
                    prezzo: prezzoCalice, _tipo: 'calice' });
-    }
-    // Se nessun prezzo, aggiungi comunque per la visualizzazione
-    if ((!prezzoBottiglia || prezzoBottiglia === '—') && (!prezzoCalice || prezzoCalice === '—')) {
-      items.push({ categoria, sottocategoria, nome, descrizione: descDisplay,
-                   prezzoCalice: '', prezzoBottiglia: '', prezzo: '—', _tipo: 'bottiglia' });
     }
   });
   return items;
@@ -2502,10 +2506,10 @@ function parseCSVCocktail(text) {
     const nome = r[2] || '';
     if (!nome) return null;
     const base = r[4] || '';
-    // Descrizione visuale: testo descrizione, base alcolica in secondaria
     return {
-      categoria:      'Cocktail',
-      sottocategoria: r[1] || '',
+      categoria:      'Cocktail',   // usato dal sommelier
+      _catOrigine:    r[0] || '',   // categoria originale (Aperitivi, Gin & Tonic…) per la visualizzazione
+      sottocategoria: r[1] || '',   // Classici / Signature — mostrata come sotto-gruppo
       nome,
       descrizione:    r[3] || '',
       dettaglio:      base,
@@ -2788,30 +2792,6 @@ function renderBarCard(cat, items) {
 }
 
 
-// =============================================
-// KUMO — Carta dei Vini da Google Sheets
-// Stesso Sheet del menu — usa le stesse colonne:
-// categoria | nome | descrizione | prezzo
-// Categorie vini valide:
-//   Al calice: "Bollicine al Calice", "Bianchi al Calice", "Rossi al Calice", "Rosati al Calice"
-//   In bottiglia: "Bollicine", "Bianchi", "Rossi", "Rosati", "Dessert"
-// =============================================
-
-function renderWineCol(title, items) {
-  if (!items || items.length === 0) return '';
-  const rows = items.map(v => `
-    <div class="vino-item">
-      <div class="vino-nome">${v.nome}</div>
-      <div class="vino-prezzo">${v.prezzo}</div>
-      <div class="vino-dettaglio">${v.descrizione || ''}</div>
-    </div>`).join('');
-  return `<div>
-    <div class="vini-col-title">${title}</div>
-    ${rows}
-  </div>`;
-}
-
-
 // ── ACCORDION HELPERS ──────────────────────────────────────
 const VINO_SECTIONS = [
   { label:'Bollicine',    icon:'✦', cats:['Bollicine'] },
@@ -2837,24 +2817,31 @@ const PH_BIRRE = {
 
 function renderWineItems(items) {
   const hasSubs = items.some(v => v.sottocategoria);
-  // Rimuovi duplicati calice/bottiglia per la visualizzazione
-  // (mostra ogni vino una sola volta con entrambi i prezzi)
+  // Deduplicazione: ogni vino appare una sola volta mostrando entrambi i prezzi
   const seen = new Set();
   const deduped = [];
   items.forEach(v => {
     const key = v.nome + (v.sottocategoria || '');
     if (!seen.has(key)) {
       seen.add(key);
-      // Trova eventuale versione calice dello stesso vino per mostrare entrambi i prezzi
-      const caliceVersion = items.find(x => x.nome === v.nome && x._tipo === 'calice');
-      const bottigliaVersion = items.find(x => x.nome === v.nome && x._tipo === 'bottiglia');
-      const pc = (caliceVersion?.prezzoCalice || v.prezzoCalice || '').replace(/^—$/, '');
-      const pb = (bottigliaVersion?.prezzoBottiglia || v.prezzoBottiglia || '').replace(/^—$/, '');
+      // prezzoCalice: dal campo diretto sull'item (già salvato in parseCSVVini)
+      const pc = (v.prezzoCalice || '').replace(/^—$/, '').trim();
+      // prezzoBottiglia: dal campo diretto
+      const pb = (v.prezzoBottiglia || '').replace(/^—$/, '').trim();
+      // prezzo generico (usato da birre e cocktail che non hanno i campi separati)
+      const pg = v.prezzo || '';
+
       let prezzoDisplay = '';
-      if (pc && pb) prezzoDisplay = `<span style="font-size:.85em;opacity:.7;display:block;font-style:normal;font-size:.78rem;letter-spacing:.05em">cal.</span>${pc}<span style="font-size:.7rem;opacity:.5;display:block;margin-top:.3rem">bott. ${pb}</span>`;
-      else if (pb) prezzoDisplay = pb;
-      else if (pc) prezzoDisplay = `${pc} <span style="font-size:.7rem;opacity:.6">cal.</span>`;
-      else prezzoDisplay = '—';
+      if (pc && pb) {
+        prezzoDisplay = `<span style="font-size:.78rem;opacity:.7;display:block;letter-spacing:.05em">cal.</span>${pc}<span style="font-size:.7rem;opacity:.5;display:block;margin-top:.3rem">bott. ${pb}</span>`;
+      } else if (pb) {
+        prezzoDisplay = pb;
+      } else if (pc) {
+        prezzoDisplay = `${pc} <span style="font-size:.7rem;opacity:.6">cal.</span>`;
+      } else {
+        // Fallback generico per birre e altri item
+        prezzoDisplay = pg || '—';
+      }
       deduped.push({ ...v, prezzoDisplay });
     }
   });
@@ -2932,6 +2919,67 @@ function renderVini(groups) {
   );
 }
 
+// Render singolo cocktail item
+function renderCocktailItems(items) {
+  // Raggruppa per sottocategoria (Classici / Signature)
+  const groups = {}, order = [];
+  items.forEach(item => {
+    const sub = item.sottocategoria || '';
+    if (!groups[sub]) { groups[sub] = []; order.push(sub); }
+    groups[sub].push(item);
+  });
+
+  const renderItem = item => `
+    <div class="vino-item">
+      <div class="vino-nome">${item.nome}</div>
+      <div class="vino-prezzo">${item.prezzo || '—'}</div>
+      <div class="vino-dettaglio">${item.descrizione || ''}</div>
+    </div>`;
+
+  // Se c'è una sola sottocategoria (o nessuna), mostra direttamente gli item
+  if (order.length <= 1) {
+    return items.map(renderItem).join('');
+  }
+  // Altrimenti mostra un sub-header per ogni sottocategoria
+  return order.map(sub => {
+    const subItems = groups[sub].map(renderItem).join('');
+    const subLabel = sub ? `<div class="vino-subcat-title" style="font-size:.65rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-dark);padding:.6rem 0 .3rem;opacity:.8">${sub}</div>` : '';
+    return subLabel + subItems;
+  }).join('');
+}
+
+// Accordion specifico per cocktail (usa renderCocktailItems invece di renderWineItems)
+function renderCocktailAccordion(containerId, sections) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const keys = Object.keys(sections);
+  if (!keys.length) { el.innerHTML = '<div class="menu-error">Configura il Google Sheet per caricare i dati.</div>'; return; }
+  el.innerHTML = keys.map(key => {
+    const items = sections[key];
+    return `<div class="vini-acc-section">
+      <div class="vini-acc-header">
+        <div class="vini-acc-left">
+          <span class="vini-acc-icon">✦</span>
+          <span class="vini-acc-title">${key}<span class="vini-acc-count">(${items.length})</span></span>
+        </div>
+        <span class="vini-acc-arrow"></span>
+      </div>
+      <div class="vini-acc-body">
+        ${renderCocktailItems(items)}
+      </div>
+    </div>`;
+  }).join('');
+
+  el.querySelectorAll('.vini-acc-header').forEach(header => {
+    header.addEventListener('click', function() {
+      const body = this.nextElementSibling;
+      const isOpen = this.classList.contains('open');
+      this.classList.toggle('open', !isOpen);
+      if (body) body.classList.toggle('open', !isOpen);
+    });
+  });
+}
+
 // Carica carta bevande da 3 fogli Google Sheets separati
 async function loadBevande() {
   const notConfigured = (url) => !url || url.startsWith('INCOLLA_QUI');
@@ -2953,29 +3001,30 @@ async function loadBevande() {
 
   // ── COCKTAIL ──
   if (notConfigured(SHEET_URL_COCKTAIL)) {
-    renderAccordion('cocktailGrid', PH_COCKTAIL, {});
+    renderCocktailAccordion('cocktailGrid', PH_COCKTAIL);
   } else {
     fetch(SHEET_URL_COCKTAIL)
       .then(r => r.text())
       .then(text => {
         const items = parseCSVCocktail(text);
         if (items.length) {
-          // Per la visualizzazione raggruppa per sottocategoria
-          const bySub = {};
-          const order = [];
+          // Raggruppa per categoria originale (Aperitivi, Gin & Tonic, Cena · Pesce…)
+          // mantenendo l'ordine di apparizione nel foglio
+          const byCat = {}, order = [];
           items.forEach(i => {
-            // Mostra come titolo la combinazione categoria + sottocategoria
-            const key = i.sottocategoria || i.categoria;
-            if (!bySub[key]) { bySub[key] = []; order.push(key); }
-            bySub[key].push(i);
+            const key = i._catOrigine || i.categoria;
+            if (!byCat[key]) { byCat[key] = []; order.push(key); }
+            byCat[key].push(i);
           });
-          renderAccordion('cocktailGrid', bySub, {});
+          const sections = {};
+          order.forEach(k => { sections[k] = byCat[k]; });
+          renderCocktailAccordion('cocktailGrid', sections);
         } else {
-          renderAccordion('cocktailGrid', PH_COCKTAIL, {});
+          renderCocktailAccordion('cocktailGrid', PH_COCKTAIL);
         }
         _somCocktailData = items;
       })
-      .catch(() => renderAccordion('cocktailGrid', PH_COCKTAIL, {}));
+      .catch(() => renderCocktailAccordion('cocktailGrid', PH_COCKTAIL));
   }
 
   // ── BIRRE ──
