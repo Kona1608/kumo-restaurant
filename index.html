@@ -1983,7 +1983,7 @@
   <ul class="nav-links">
     <li><a href="#about">La Storia</a></li>
     <li><a href="#menu">Menu</a></li>
-    <li><a href="#vini">Vini</a></li>
+    <li><a href="#vini">Bevande</a></li>
     <li><a href="#galleria">Galleria</a></li>
     <li><a href="#info">Info</a></li>
   </ul>
@@ -1999,7 +1999,7 @@
   <ul>
     <li><a href="#about" onclick="closeMobileNav()">La Storia</a></li>
     <li><a href="#menu" onclick="closeMobileNav()">Menu</a></li>
-    <li><a href="#vini" onclick="closeMobileNav()">Vini</a></li>
+    <li><a href="#vini" onclick="closeMobileNav()">Bevande</a></li>
     <li><a href="#galleria" onclick="closeMobileNav()">Galleria</a></li>
     <li><a href="#info" onclick="closeMobileNav()">Info</a></li>
     <li><a href="#prenota" onclick="closeMobileNav()" class="mobile-nav-cta">Prenota</a></li>
@@ -2618,7 +2618,7 @@ function toggleSubcat(header) {
 
 function renderTabs(categories, active) {
   const tabsEl = document.getElementById('menuTabs');
-  const tabLabels = { 'Tutti': 'Tutti', 'Sushi': 'Sushi', 'Mare': 'Pesce', 'Terra': 'Carne' };
+  const tabLabels = { 'Tutti': 'Tutti', 'Sushi': 'Sushi', 'Mare': 'Mare', 'Terra': 'Terra' };
   tabsEl.innerHTML = ['Tutti', ...categories].map(cat => `
     <button class="menu-tab${cat === active ? ' active' : ''}" data-cat="${cat}">${tabLabels[cat] || cat}</button>
   `).join('');
@@ -2833,7 +2833,7 @@ function renderWineItems(items) {
 
       let prezzoDisplay = '';
       if (pc && pb) {
-        prezzoDisplay = `<span style="font-size:.78rem;opacity:.7;display:block;letter-spacing:.05em">cal.</span>${pc}<span style="font-size:.7rem;opacity:.5;display:block;margin-top:.3rem">bott. ${pb}</span>`;
+        prezzoDisplay = `<span style="font-size:.78rem;opacity:.7;letter-spacing:.05em">cal.</span> ${pc} / <span style="font-size:.78rem;opacity:.7;letter-spacing:.05em">bott.</span> ${pb}`;
       } else if (pb) {
         prezzoDisplay = pb;
       } else if (pc) {
