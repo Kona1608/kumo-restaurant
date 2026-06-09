@@ -713,6 +713,33 @@
     .menu-legend-grid { grid-template-columns: repeat(2, 1fr); }
   }
 
+  /* COPERTO */
+  .menu-coperto {
+    max-width: 1100px;
+    margin: 1rem auto 0;
+    border: 0.5px solid rgba(201,165,90,0.2);
+    background: var(--dark2);
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  .menu-coperto-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .menu-coperto-price {
+    font-size: 0.72rem;
+    color: var(--white-muted);
+  }
+  @media (max-width: 768px) {
+    .menu-coperto { padding: 1rem 1.4rem; flex-wrap: wrap; }
+    .menu-coperto-label { letter-spacing: 0.2em; }
+  }
+
   .menu-error {
     grid-column: 1/-1;
     text-align: center;
@@ -2109,6 +2136,10 @@
         <div class="menu-legend-item"><span class="menu-legend-num">13</span><span class="menu-legend-name">Lupini</span></div>
         <div class="menu-legend-item"><span class="menu-legend-num">14</span><span class="menu-legend-name">Molluschi</span></div>
       </div>
+    </div>
+    <div class="menu-coperto reveal">
+      <span class="menu-coperto-label">Coperto e servizio</span>
+      <span class="menu-coperto-price">€ 3,00 a persona</span>
     </div>
   </div>
 
